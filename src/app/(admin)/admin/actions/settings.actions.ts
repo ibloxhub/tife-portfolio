@@ -6,7 +6,7 @@ import { requireAuth } from '@/lib/api/helpers'
 
 export async function updateSettingsAction(data: any) {
   const auth = await requireAuth()
-  if (!auth.authenticated) return { error: 'Unauthorized' }
+  if (!auth.authenticated) return { data: null, error: 'Unauthorized' }
 
   const result = await updateSettings(data)
   if (!result.error) {

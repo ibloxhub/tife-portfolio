@@ -7,9 +7,9 @@ import type { ContactFilters } from '@/lib/services/types'
 
 export async function updateContactStatusAction(id: string, status: ContactFilters['status']) {
   const auth = await requireAuth()
-  if (!auth.authenticated) return { error: 'Unauthorized' }
+  if (!auth.authenticated) return { data: null, error: 'Unauthorized' }
 
-  if (!status) return { error: 'Status is required' }
+  if (!status) return { data: null, error: 'Status is required' }
 
   const result = await updateContactStatus(id, status)
   if (!result.error) {
@@ -20,7 +20,7 @@ export async function updateContactStatusAction(id: string, status: ContactFilte
 
 export async function deleteContactAction(id: string) {
   const auth = await requireAuth()
-  if (!auth.authenticated) return { error: 'Unauthorized' }
+  if (!auth.authenticated) return { data: null, error: 'Unauthorized' }
 
   const result = await deleteContact(id)
   if (!result.error) {

@@ -6,7 +6,7 @@ import { requireAuth } from '@/lib/api/helpers'
 
 export async function createPortfolioAction(data: any) {
   const auth = await requireAuth()
-  if (!auth.authenticated) return { error: 'Unauthorized' }
+  if (!auth.authenticated) return { data: null, error: 'Unauthorized' }
 
   const result = await createPortfolio(data)
   if (!result.error) {
@@ -19,7 +19,7 @@ export async function createPortfolioAction(data: any) {
 
 export async function updatePortfolioAction(id: string, data: any) {
   const auth = await requireAuth()
-  if (!auth.authenticated) return { error: 'Unauthorized' }
+  if (!auth.authenticated) return { data: null, error: 'Unauthorized' }
 
   const result = await updatePortfolio(id, data)
   if (!result.error) {
@@ -32,7 +32,7 @@ export async function updatePortfolioAction(id: string, data: any) {
 
 export async function deletePortfolioAction(id: string) {
   const auth = await requireAuth()
-  if (!auth.authenticated) return { error: 'Unauthorized' }
+  if (!auth.authenticated) return { data: null, error: 'Unauthorized' }
 
   const result = await deletePortfolio(id)
   if (!result.error) {
@@ -45,7 +45,7 @@ export async function deletePortfolioAction(id: string) {
 
 export async function reorderPortfolioAction(items: { id: string; sort_order: number }[]) {
   const auth = await requireAuth()
-  if (!auth.authenticated) return { error: 'Unauthorized' }
+  if (!auth.authenticated) return { data: null, error: 'Unauthorized' }
 
   const result = await reorderPortfolios(items)
   if (!result.error) {
