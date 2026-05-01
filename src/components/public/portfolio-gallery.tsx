@@ -17,7 +17,7 @@ export function PortfolioGallery({ initialItems }: PortfolioGalleryProps) {
 
   const filteredItems = filter === 'All' 
     ? initialItems 
-    : initialItems.filter(item => item.category.toLowerCase() === filter.toLowerCase())
+    : initialItems.filter(item => item.category?.toLowerCase() === filter.toLowerCase())
 
   return (
     <div className="flex flex-col gap-16">
