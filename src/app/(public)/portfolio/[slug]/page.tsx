@@ -7,11 +7,11 @@ import { ArrowLeft, Calendar, Tag, Eye } from '@phosphor-icons/react/dist/ssr'
 import { Metadata } from 'next'
 
 interface PageProps {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { slug } = params
+  const { slug } = await params
   const { data: project } = await getPortfolioBySlug(slug)
 
   if (!project) return { title: 'Not Found' }
@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 }
 
 export default async function PortfolioDetailPage({ params }: PageProps) {
-  const { slug } = params
+  const { slug } = await params
   const { data: project } = await getPortfolioBySlug(slug)
 
   if (!project || !project.is_published) {
