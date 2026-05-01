@@ -106,7 +106,7 @@ export default async function PortfolioDetailPage({ params }: PageProps) {
                   <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/20 block">Views</span>
                   <div className="flex items-center gap-2 text-white/60">
                     <Eye className="h-4 w-4 text-gold" />
-                    <span className="text-sm font-medium">{project.views_count ?? 0}</span>
+                    <span className="text-sm font-medium">{project.view_count ?? 0}</span>
                   </div>
                 </div>
               </div>
