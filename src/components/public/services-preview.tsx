@@ -30,7 +30,7 @@ export function ServicesPreview({ services }: ServicesPreviewProps) {
         {/* Services Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {services.map((service) => {
-            const Icon = iconMap[service.category.toLowerCase()] || Camera
+            const Icon = iconMap[service.category?.toLowerCase() ?? ''] || Camera
             
             return (
               <div 
