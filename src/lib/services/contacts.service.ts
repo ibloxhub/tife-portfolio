@@ -12,6 +12,7 @@ import type {
   Contact,
   ContactInsert,
 } from './types'
+import { sendAdminNotification } from './email.service'
 
 /**
  * Get all contacts with optional filters and pagination (admin only).
@@ -114,6 +115,12 @@ export async function createContact(
       .single()
 
     if (error) return { data: null, error: error.message }
+
+    // Trigger email notifications (background)
+    sendAdminNotification(data).catch(err => 
+      console.error('[CONTACT] Email notification trigger failed:', err)
+    )
+
     return { data, error: null }
   } catch (err) {
     return { data: null, error: `Unexpected error: ${(err as Error).message}` }

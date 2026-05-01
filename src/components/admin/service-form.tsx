@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Spinner } from '@phosphor-icons/react'
 import { AdminInput, AdminTextarea, AdminToggle } from '@/components/admin/admin-form-field'
+import { AdminImageUpload } from '@/components/admin/admin-image-upload'
 import { useToast } from '@/components/admin/admin-toast'
 import { createServiceAction, updateServiceAction } from '@/app/(admin)/admin/actions/services.actions'
 import type { Service } from '@/lib/services/types'
@@ -24,6 +25,7 @@ export function ServiceForm({ service, onSuccess, onCancel }: ServiceFormProps) 
   const [shortDescription, setShortDescription] = useState(service?.short_description ?? '')
   const [ctaText, setCtaText] = useState(service?.cta_text ?? 'Learn More')
   const [iconName, setIconName] = useState(service?.icon_name ?? '')
+  const [imageUrl, setImageUrl] = useState(service?.image_url ?? '')
   const [isActive, setIsActive] = useState(service?.is_active ?? true)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -47,6 +49,7 @@ export function ServiceForm({ service, onSuccess, onCancel }: ServiceFormProps) 
       short_description: shortDescription.trim() || null,
       cta_text: ctaText.trim() || 'Learn More',
       icon_name: iconName.trim() || null,
+      image_url: imageUrl || null,
       is_active: isActive,
     }
 
@@ -95,6 +98,15 @@ export function ServiceForm({ service, onSuccess, onCancel }: ServiceFormProps) 
         value={shortDescription}
         onChange={(e) => setShortDescription(e.target.value)}
         helper="Shown on service cards on the public website."
+      />
+
+      <AdminImageUpload
+        label="Service Image"
+        value={imageUrl}
+        onUpload={(url) => setImageUrl(url)}
+        onRemove={() => setImageUrl('')}
+        storagePath="services"
+        helper="Shown as the background image for this service on the Services page."
       />
 
       <AdminTextarea

@@ -12,10 +12,36 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "ShotThatWithTife | Cinematic Experiences",
-  description: "High-end cinematic videography and editorial photography portfolio.",
-};
+import { getSettings } from "@/lib/services/settings.service";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const result = await getSettings();
+  const settings = result.data;
+
+  const seoDefaults = settings?.seo_defaults as { metaTitle?: string, metaDescription?: string } | null;
+  const defaultTitle = seoDefaults?.metaTitle || settings?.site_name || "ShotThatWithTife";
+  const defaultDescription = seoDefaults?.metaDescription || settings?.tagline || "High-end cinematic videography and editorial photography portfolio.";
+
+  return {
+    title: {
+      template: `%s | ${settings?.site_name || 'ShotThatWithTife'}`,
+      default: defaultTitle,
+    },
+    description: defaultDescription,
+    openGraph: {
+      title: defaultTitle,
+      description: defaultDescription,
+      siteName: settings?.site_name || "ShotThatWithTife",
+      locale: 'en_US',
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: defaultTitle,
+      description: defaultDescription,
+    },
+  };
+}
 
 export default function RootLayout({
   children,
