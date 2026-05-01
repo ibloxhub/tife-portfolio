@@ -1,11 +1,11 @@
 import { MetadataRoute } from 'next'
-import { getPortfolioAction } from '@/app/(admin)/admin/actions/portfolio.actions'
+import { getAllPortfolios } from '@/lib/services/portfolio.service'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://shotthatwithtife.com'
 
   // Get dynamic portfolio items
-  const { data: portfolioItems } = await getPortfolioAction()
+  const { data: portfolioItems } = await getAllPortfolios()
   const activeItems = (portfolioItems || []).filter(item => item.is_published)
 
   const portfolioEntries: MetadataRoute.Sitemap = activeItems.map((item) => ({
