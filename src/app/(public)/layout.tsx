@@ -25,9 +25,9 @@ export default async function PublicLayout({ children }: { children: React.React
           }}
         />
         {/* Ambient Orbs */}
-        <div className="absolute top-[15%] left-[5%] w-[35%] h-[25%] rounded-full bg-gold/[0.04] blur-[150px] animate-pulse" />
-        <div className="absolute bottom-[20%] right-[10%] w-[30%] h-[20%] rounded-full bg-white/[0.03] blur-[120px]" />
-        <div className="absolute top-[60%] left-[50%] w-[25%] h-[15%] rounded-full bg-gold/[0.02] blur-[100px]" />
+        <div className="absolute top-[15%] left-[5%] w-[35%] h-[25%] rounded-full bg-gold/[0.04] blur-[150px] will-change-transform animate-[drift_20s_ease-in-out_infinite]" />
+        <div className="absolute bottom-[20%] right-[10%] w-[30%] h-[20%] rounded-full bg-white/[0.03] blur-[120px] will-change-transform animate-[drift_25s_ease-in-out_infinite_reverse]" />
+        <div className="absolute top-[60%] left-[50%] w-[25%] h-[15%] rounded-full bg-gold/[0.02] blur-[100px] will-change-transform animate-[drift_30s_ease-in-out_infinite]" />
       </div>
 
       {/* ── Navbar ── */}

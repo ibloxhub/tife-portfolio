@@ -29,7 +29,7 @@ export function FinalCTA({ email, whatsapp }: FinalCTAProps) {
             Book a Session
           </Link>
           <Link 
-            href="/archive"
+            href="/portfolio"
             className="h-16 px-12 rounded-full bg-white/5 border border-white/10 text-white font-bold uppercase tracking-[0.2em] text-xs hover:bg-white/10 transition-all duration-500 flex items-center"
           >
             View My Work

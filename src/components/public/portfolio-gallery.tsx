@@ -44,7 +44,7 @@ export function PortfolioGallery({ initialItems }: PortfolioGalleryProps) {
         {filteredItems.map((item) => (
           <Link 
             key={item.id}
-            href={`/archive/${item.slug}`}
+            href={`/portfolio/${item.slug}`}
             className="block group relative overflow-hidden rounded-[2rem] bg-white/[0.02] border border-white/[0.06] break-inside-avoid transform-gpu"
           >
             <div className="relative aspect-auto">

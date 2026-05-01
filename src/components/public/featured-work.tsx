@@ -15,18 +15,18 @@ export function FeaturedWork({ items }: FeaturedWorkProps) {
         {/* Header */}
         <div className="flex items-end justify-between mb-16">
           <div className="flex flex-col gap-4">
-            <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-gold animate-pulse">
-              Archive
+            <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-gold">
+              Portfolio
             </span>
             <h2 className="text-4xl md:text-6xl font-bold uppercase tracking-tighter text-white">
               Selected Work
             </h2>
           </div>
           <Link 
-            href="/archive" 
+            href="/portfolio" 
             className="group flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.2em] text-white/40 hover:text-white transition-all"
           >
-            View Full Archive
+            View Full Portfolio
             <div className="h-8 w-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-gold group-hover:text-black transition-all">
               <ArrowRight weight="bold" className="h-4 w-4" />
             </div>
@@ -69,7 +69,7 @@ export function FeaturedWork({ items }: FeaturedWorkProps) {
 
 function PortfolioCard({ item }: { item: Portfolio }) {
   return (
-    <Link href={`/archive/${item.slug}`} className="block h-full w-full">
+    <Link href={`/portfolio/${item.slug}`} className="block h-full w-full">
       <Image
         src={item.thumbnail_url || '/placeholder-work.png'}
         alt={item.title}

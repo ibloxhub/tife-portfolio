@@ -124,3 +124,9 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--gold);
 }
+
+/* Ambient Orb Drift Animation (GPU-accelerated) */
+@keyframes drift {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
