@@ -14,6 +14,7 @@ export function ViewTracker({ portfolioId, portfolioTitle }: ViewTrackerProps) {
     const timer = setTimeout(() => {
       trackEventAction({
         event_type: 'portfolio_view',
+        entity_id: portfolioId,
         metadata: {
           portfolio_id: portfolioId,
           portfolio_title: portfolioTitle,
