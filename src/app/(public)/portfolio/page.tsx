@@ -7,6 +7,8 @@ export const metadata: Metadata = {
   description: 'A curated collection of visual stories, ranging from intimate weddings to high-impact brand campaigns.',
 }
 
+export const dynamic = 'force-dynamic'
+
 export default async function PortfolioPage() {
   const { data: portfolios } = await getAllPortfolios({ isPublished: true })
   

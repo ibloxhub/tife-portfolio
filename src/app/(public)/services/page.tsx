@@ -10,6 +10,8 @@ export const metadata: Metadata = {
   description: 'From cinematic videography to intimate photography, high-end visual solutions tailored to your unique story.',
 }
 
+export const dynamic = 'force-dynamic'
+
 export default async function ServicesPage() {
   const { data: allServices } = await getAllServices()
   const services = (allServices ?? []).filter(s => s.is_active)
@@ -67,7 +69,7 @@ export default async function ServicesPage() {
                     <span className="text-sm font-bold uppercase tracking-[0.5em] text-gold/60">
                       0{i + 1} // {service.category}
                     </span>
-                    <h2 className="text-6xl md:text-8xl font-black uppercase tracking-tighter text-white leading-[0.9]">
+                    <h2 className="text-4xl md:text-6xl lg:text-7xl font-black uppercase tracking-tighter text-white leading-[0.9]">
                       {service.name || service.category || 'Service'}
                     </h2>
                   </div>

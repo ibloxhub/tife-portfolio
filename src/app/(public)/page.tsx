@@ -11,6 +11,8 @@ import { ProcessSection } from '@/components/public/process-section'
 import { TestimonialsSection } from '@/components/public/testimonials-section'
 import { FinalCTA } from '@/components/public/final-cta'
 
+export const dynamic = 'force-dynamic'
+
 export default async function HomePage() {
   // Fetch data from admin CMS
   const [portfolioResult, servicesResult, settingsResult] = await Promise.all([

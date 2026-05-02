@@ -244,30 +244,7 @@ export function SettingsForm({ initialSettings }: SettingsFormProps) {
         </div>
       </AdminCard>
 
-      {/* SEO */}
-      <AdminCard>
-        <div className="flex flex-col gap-6">
-          <div className="flex flex-col gap-1">
-            <h2 className="text-base font-medium text-white">SEO Defaults</h2>
-            <p className="text-xs text-text-muted">Default title and description for search engines.</p>
-          </div>
 
-          <AdminInput
-            label="Default Meta Title"
-            placeholder="ShotThatWithTife — Professional Cinematography"
-            value={seoDefaults.metaTitle}
-            onChange={(e) => updateSeo('metaTitle', e.target.value)}
-            helper="The title that appears in Google search results."
-          />
-          <AdminTextarea
-            label="Default Meta Description"
-            placeholder="Professional cinematography and photography services..."
-            value={seoDefaults.metaDescription}
-            onChange={(e) => updateSeo('metaDescription', e.target.value)}
-            helper="The description Google shows under your title. Keep it under 160 characters."
-          />
-        </div>
-      </AdminCard>
 
       {/* Save Button */}
       <div className="flex justify-end pb-8">

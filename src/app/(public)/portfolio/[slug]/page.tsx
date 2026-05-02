@@ -102,13 +102,6 @@ export default async function PortfolioDetailPage({ params }: PageProps) {
                     <span className="text-sm font-medium">{project.category}</span>
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/20 block">Views</span>
-                  <div className="flex items-center gap-2 text-white/60">
-                    <Eye className="h-4 w-4 text-gold" />
-                    <span className="text-sm font-medium">{project.view_count ?? 0}</span>
-                  </div>
-                </div>
               </div>
               
               <Link 
@@ -132,11 +125,7 @@ export default async function PortfolioDetailPage({ params }: PageProps) {
                     />
                   </div>
                 ))
-              ) : (
-                <div className="aspect-[16/9] w-full rounded-[2.5rem] bg-white/[0.02] border border-white/[0.06] flex items-center justify-center italic text-white/20">
-                  Additional media coming soon.
-                </div>
-              )}
+              ) : null}
             </div>
           </div>
         </div>
