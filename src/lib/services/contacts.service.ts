@@ -105,6 +105,7 @@ export async function createContact(
       email: input.email.trim().toLowerCase(),
       message: sanitizeHtml(input.message.trim()),
       phone: input.phone ? input.phone.trim() : null,
+      service_id: input.service_id && input.service_id.trim() !== '' ? input.service_id.trim() : null,
       status: 'new' as const,
     }
 

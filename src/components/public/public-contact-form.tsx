@@ -21,7 +21,7 @@ export function PublicContactForm({ services }: PublicContactFormProps) {
     name: '',
     email: '',
     phone: '',
-    service_id: '',
+    service_name: '',
     message: '',
   })
 
@@ -29,7 +29,7 @@ export function PublicContactForm({ services }: PublicContactFormProps) {
   useEffect(() => {
     const serviceName = searchParams.get('service')
     if (serviceName && services.includes(serviceName)) {
-      setFormData(prev => ({ ...prev, service_id: serviceName }))
+      setFormData(prev => ({ ...prev, service_name: serviceName }))
     }
   }, [searchParams, services])
 
@@ -45,7 +45,7 @@ export function PublicContactForm({ services }: PublicContactFormProps) {
         setError(result.error || 'Failed to submit')
       } else {
         setIsSuccess(true)
-        setFormData({ name: '', email: '', phone: '', service_id: '', message: '' })
+        setFormData({ name: '', email: '', phone: '', service_name: '', message: '' })
       }
     } catch (err) {
       setError('An unexpected error occurred. Please try again.')
@@ -127,10 +127,10 @@ export function PublicContactForm({ services }: PublicContactFormProps) {
             className={cn(
               "h-12 px-6 rounded-2xl border text-left flex items-center justify-between transition-all outline-none",
               dropdownOpen ? "bg-white/[0.05] border-gold/50 text-white" : "bg-white/[0.03] border-white/10 text-white hover:bg-white/[0.05]",
-              !formData.service_id && "text-white/40"
+              !formData.service_name && "text-white/40"
             )}
           >
-            <span className="truncate">{formData.service_id || 'Select a Service'}</span>
+            <span className="truncate">{formData.service_name || 'Select a Service'}</span>
             <CaretDown weight="bold" className={cn("h-4 w-4 transition-transform duration-300", dropdownOpen && "rotate-180 text-gold")} />
           </button>
 
@@ -143,12 +143,12 @@ export function PublicContactForm({ services }: PublicContactFormProps) {
                     key={`${s}-${idx}`}
                     type="button"
                     onClick={() => {
-                      setFormData({ ...formData, service_id: s })
+                      setFormData({ ...formData, service_name: s })
                       setDropdownOpen(false)
                     }}
                     className={cn(
                       "w-full text-left px-6 py-4 text-sm transition-colors hover:bg-white/5",
-                      formData.service_id === s ? "text-gold bg-gold/5" : "text-white/70"
+                      formData.service_name === s ? "text-gold bg-gold/5" : "text-white/70"
                     )}
                   >
                     {s}
