@@ -14,7 +14,7 @@ import {
   WarningCircle,
   X,
 } from '@phosphor-icons/react'
-import { uploadFile, extractVideoEmbedUrl, getVideoThumbnailUrl } from '@/lib/services/upload.service'
+import { extractVideoEmbedUrl, getVideoThumbnailUrl } from '@/lib/services/upload.service'
 import { cn } from '@/lib/utils'
 
 // ── Types ──────────────────────────────────────────────────────────────────────
@@ -112,7 +112,25 @@ export function AdminMediaUpload({
         return next
       })
 
-      const result = await uploadFile(file, path)
+      let result: { data: string | null; error: string | null } = { data: null, error: null }
+      try {
+        const formData = new FormData()
+        formData.append('file', file)
+        formData.append('path', path)
+
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        })
+        const json = await res.json()
+        if (res.ok && json.success) {
+          result = { data: json.data.url, error: null }
+        } else {
+          result = { data: null, error: json.message || 'Upload failed' }
+        }
+      } catch (err) {
+        result = { data: null, error: (err as Error).message || 'Upload failed' }
+      }
 
       setItems((prev) => {
         const next = prev.map((item) =>
