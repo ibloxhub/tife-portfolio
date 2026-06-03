@@ -1,12 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { MagnifyingGlass, Envelope, Trash, CheckSquare, Square, ArrowCounterClockwise } from '@phosphor-icons/react'
 import { AdminBadge } from '@/components/admin/admin-badge'
 import { AdminEmptyState } from '@/components/admin/admin-empty-state'
 import { AdminConfirmDialog } from '@/components/admin/admin-confirm-dialog'
 import { MessageDetail } from '@/components/admin/message-detail'
 import { useToast } from '@/components/admin/admin-toast'
+import { useRealtime } from '@/hooks/use-realtime'
 import {
   updateContactStatusAction,
   deleteContactAction,
@@ -23,12 +25,21 @@ interface MessagesListProps {
 
 export function MessagesList({ initialContacts }: MessagesListProps) {
   const { showToast } = useToast()
+  const router = useRouter()
   const [contacts, setContacts] = useState(initialContacts)
   const [search, setSearch] = useState('')
   const [activeTab, setActiveTab] = useState<StatusTab>('all')
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Contact | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
+
+  // Realtime subscription — refresh contacts when new inquiries come in
+  useRealtime('contacts', () => router.refresh())
+
+  // Keep local state in sync when server component re-fetches and passes new props
+  useEffect(() => {
+    setContacts(initialContacts)
+  }, [initialContacts])
 
   // ── Bulk select state ──────────────────────────────────────────────────────
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())

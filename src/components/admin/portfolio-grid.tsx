@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Plus, MagnifyingGlass, Eye, PencilSimple, Trash, Star } from '@phosphor-icons/react'
 import { AdminBadge, PublishBadge } from '@/components/admin/admin-badge'
@@ -37,6 +37,11 @@ export function PortfolioGrid({ initialPortfolios }: PortfolioGridProps) {
 
   // Realtime sync — refresh when another session changes portfolio data
   useRealtime('portfolio', () => router.refresh())
+
+  // Keep local state in sync when server component re-fetches and passes new props
+  useEffect(() => {
+    setPortfolios(initialPortfolios)
+  }, [initialPortfolios])
 
   // Modal states
   const [isFormOpen, setIsFormOpen] = useState(false)
