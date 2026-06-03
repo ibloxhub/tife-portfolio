@@ -46,6 +46,9 @@ const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/web
 const ACCEPTED_VIDEO_TYPES = ['video/mp4', 'video/mov', 'video/webm', 'video/quicktime']
 const ACCEPTED_ALL = [...ACCEPTED_IMAGE_TYPES, ...ACCEPTED_VIDEO_TYPES].join(',')
 
+const MAX_IMAGE_MB = 10
+const MAX_VIDEO_MB = 500
+
 // ── Helper ─────────────────────────────────────────────────────────────────────
 
 function uid() {
@@ -90,67 +93,122 @@ export function AdminMediaUpload({
     onChange(finalItems.map((i) => i.url), finalItems.map((i) => i.type))
   }
 
-  // ── File upload ────────────────────────────────────────────────────────────
-  async function uploadSingleFile(file: File): Promise<MediaItem> {
+  // ── File upload ─────────────────────────────────────────────────────────────
+  // Uses a two-step signed-URL approach:
+  //  1. POST /api/upload/signed-url  →  tiny JSON, no size limit concern
+  //  2. PUT directly to Supabase     →  bypasses Next.js 4 MB body limit
+  //     with XHR so we get real upload-progress events.
+  async function uploadSingleFile(file: File): Promise<void> {
     const isImage = ACCEPTED_IMAGE_TYPES.includes(file.type)
     const type: MediaType = isImage ? 'image' : 'video'
+    const maxMB = isImage ? MAX_IMAGE_MB : MAX_VIDEO_MB
     const ext = file.name.split('.').pop() ?? 'bin'
     const path = `${storagePath}/${type}s/${uid()}.${ext}`
+    const placeholderId = uid()
 
-    const placeholder: MediaItem = {
-      id: uid(),
-      url: '',
-      type,
-      preview: isImage ? URL.createObjectURL(file) : undefined,
-      isUploading: true,
-      uploadProgress: 0,
+    // Client-side size guard
+    if (file.size > maxMB * 1024 * 1024) {
+      // Add an error card immediately – no server round-trip needed
+      setItems((prev) => [
+        ...prev,
+        {
+          id: placeholderId,
+          url: '',
+          type,
+          isUploading: false,
+          error: `File too large (${(file.size / 1024 / 1024).toFixed(0)} MB). Max: ${maxMB} MB`,
+        },
+      ])
+      return
     }
 
-    return new Promise(async (resolve) => {
-      setItems((prev) => {
-        const next = [...prev, placeholder]
-        return next
+    // Add placeholder card immediately so the user sees feedback
+    setItems((prev) => [
+      ...prev,
+      {
+        id: placeholderId,
+        url: '',
+        type,
+        preview: isImage ? URL.createObjectURL(file) : undefined,
+        isUploading: true,
+        uploadProgress: 0,
+      },
+    ])
+
+    const markError = (msg: string) =>
+      setItems((prev) =>
+        prev.map((item) =>
+          item.id === placeholderId ? { ...item, isUploading: false, error: msg } : item
+        )
+      )
+
+    try {
+      // ── Step 1: get a signed upload URL from our API ───────────────────────
+      const signedRes = await fetch('/api/upload/signed-url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ path }),
       })
 
-      let result: { data: string | null; error: string | null } = { data: null, error: null }
+      // Safely parse response — if the server sends non-JSON we catch it
+      const rawText = await signedRes.text()
+      let signedJson: { success: boolean; data?: { signedUrl: string; path: string }; message?: string }
       try {
-        const formData = new FormData()
-        formData.append('file', file)
-        formData.append('path', path)
-
-        const res = await fetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-        })
-        const json = await res.json()
-        if (res.ok && json.success) {
-          result = { data: json.data.url, error: null }
-        } else {
-          result = { data: null, error: json.message || 'Upload failed' }
-        }
-      } catch (err) {
-        result = { data: null, error: (err as Error).message || 'Upload failed' }
+        signedJson = JSON.parse(rawText)
+      } catch {
+        markError('Server error preparing upload. Please try again.')
+        return
       }
+
+      if (!signedRes.ok || !signedJson.success) {
+        markError(signedJson.message ?? 'Could not prepare upload')
+        return
+      }
+
+      const { signedUrl } = signedJson.data!
+
+      // ── Step 2: PUT directly to Supabase with XHR for progress ────────────
+      await new Promise<void>((resolve, reject) => {
+        const xhr = new XMLHttpRequest()
+        xhr.open('PUT', signedUrl, true)
+        xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream')
+
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable) {
+            const pct = Math.round((e.loaded / e.total) * 90) // cap at 90 until confirmed
+            setItems((prev) =>
+              prev.map((item) =>
+                item.id === placeholderId ? { ...item, uploadProgress: pct } : item
+              )
+            )
+          }
+        }
+
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) resolve()
+          else reject(new Error(`Upload failed (${xhr.status}). Check file type or size.`))
+        }
+        xhr.onerror = () => reject(new Error('Network error during upload.'))
+        xhr.onabort = () => reject(new Error('Upload cancelled.'))
+        xhr.send(file)
+      })
+
+      // ── Step 3: build public URL and finalise the card ────────────────────
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+      const publicUrl = `${supabaseUrl}/storage/v1/object/public/media/${path}`
 
       setItems((prev) => {
         const next = prev.map((item) =>
-          item.id === placeholder.id
-            ? result.error
-              ? { ...item, isUploading: false, error: result.error }
-              : { ...item, isUploading: false, url: result.data!, uploadProgress: 100 }
+          item.id === placeholderId
+            ? { ...item, isUploading: false, url: publicUrl, uploadProgress: 100 }
             : item
         )
         emitChange(next)
         return next
       })
-
-      resolve({
-        ...placeholder,
-        url: result.data ?? '',
-        isUploading: false,
-        error: result.error ?? undefined,
-      })
-    })
+    } catch (err) {
+      markError((err as Error).message || 'Upload failed')
+    }
   }
 
   async function handleFiles(files: File[]) {
@@ -300,7 +358,16 @@ export function AdminMediaUpload({
               {item.isUploading && (
                 <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center gap-1">
                   <Spinner className="h-5 w-5 text-gold animate-spin" />
-                  <span className="text-[9px] text-white/60">Uploading...</span>
+                  <span className="text-[9px] text-white/60">
+                    {(item.uploadProgress ?? 0) > 0 ? `${item.uploadProgress}%` : 'Uploading…'}
+                  </span>
+                  {/* Progress bar */}
+                  <div className="absolute bottom-0 left-0 right-0 h-[3px] bg-white/10">
+                    <div
+                      className="h-full bg-gold transition-all duration-300 ease-out"
+                      style={{ width: `${item.uploadProgress ?? 0}%` }}
+                    />
+                  </div>
                 </div>
               )}
 
