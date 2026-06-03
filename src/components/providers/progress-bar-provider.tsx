@@ -8,9 +8,8 @@ export function ProgressBarProvider({ children }: { children: React.ReactNode })
       {children}
       <ProgressBar
         height="3px"
-        color="#D4AF37"
-        options={{ showSpinner: false }}
-        shallowRouting
+        color="#C8A97E"
+        options={{ showSpinner: false, easing: 'ease', speed: 400 }}
       />
     </>
   )

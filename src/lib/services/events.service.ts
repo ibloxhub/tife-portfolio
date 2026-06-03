@@ -3,7 +3,6 @@
 // ============================================================
 
 import { createAdminClient } from '@/lib/supabase/admin'
-import { createClient } from '@/lib/supabase/server'
 import type {
   ServiceResponse,
   AnalyticsParams,
@@ -42,7 +41,8 @@ export async function getEvents(
   limit = 100
 ): Promise<ServiceResponse<TrackingEvent[]>> {
   try {
-    const supabase = await createClient()
+    // Use admin client to bypass RLS — events table requires authenticated role
+    const supabase = createAdminClient()
     let query = supabase
       .from('events')
       .select('*', { count: 'exact' })
@@ -78,7 +78,8 @@ export async function getAnalyticsOverview(
   ctaClicks: number
 }>> {
   try {
-    const supabase = await createClient()
+    // Use admin client to bypass RLS — events SELECT requires authenticated role
+    const supabase = createAdminClient()
 
     // Build base query with optional date filter
     let baseQuery = supabase.from('events').select('event_type', { count: 'exact', head: false })
@@ -107,13 +108,84 @@ export async function getAnalyticsOverview(
 }
 
 /**
+ * Get today vs yesterday event counts for trend indicators.
+ * Uses admin client to bypass RLS.
+ */
+export async function getAnalyticsTrends(): Promise<ServiceResponse<{
+  pageViews: { today: number; yesterday: number; trendPercent: number }
+  portfolioViews: { today: number; yesterday: number; trendPercent: number }
+  serviceClicks: { today: number; yesterday: number; trendPercent: number }
+  contactSubmissions: { today: number; yesterday: number; trendPercent: number }
+  totalEvents: { today: number; yesterday: number; trendPercent: number }
+}>> {
+  try {
+    const supabase = createAdminClient()
+
+    const now = new Date()
+    const todayStart = new Date(now)
+    todayStart.setHours(0, 0, 0, 0)
+    const yesterdayStart = new Date(todayStart)
+    yesterdayStart.setDate(yesterdayStart.getDate() - 1)
+    const tomorrowStart = new Date(todayStart)
+    tomorrowStart.setDate(tomorrowStart.getDate() + 1)
+
+    const { data: todayEvents } = await supabase
+      .from('events')
+      .select('*')
+      .gte('created_at', todayStart.toISOString())
+      .lt('created_at', tomorrowStart.toISOString())
+
+    const { data: yesterdayEvents } = await supabase
+      .from('events')
+      .select('*')
+      .gte('created_at', yesterdayStart.toISOString())
+      .lt('created_at', todayStart.toISOString())
+
+    const today = (todayEvents ?? []) as TrackingEvent[]
+    const yesterday = (yesterdayEvents ?? []) as TrackingEvent[]
+
+    function calcTrend(todayCount: number, yesterdayCount: number) {
+      const trendPercent = yesterdayCount === 0
+        ? todayCount > 0 ? 100 : 0
+        : Math.round(((todayCount - yesterdayCount) / yesterdayCount) * 100)
+      return { today: todayCount, yesterday: yesterdayCount, trendPercent }
+    }
+
+    return {
+      data: {
+        pageViews: calcTrend(
+          today.filter((e) => e.event_type === 'page_view').length,
+          yesterday.filter((e) => e.event_type === 'page_view').length
+        ),
+        portfolioViews: calcTrend(
+          today.filter((e) => e.event_type === 'portfolio_view').length,
+          yesterday.filter((e) => e.event_type === 'portfolio_view').length
+        ),
+        serviceClicks: calcTrend(
+          today.filter((e) => e.event_type === 'service_click').length,
+          yesterday.filter((e) => e.event_type === 'service_click').length
+        ),
+        contactSubmissions: calcTrend(
+          today.filter((e) => e.event_type === 'contact_submit').length,
+          yesterday.filter((e) => e.event_type === 'contact_submit').length
+        ),
+        totalEvents: calcTrend(today.length, yesterday.length),
+      },
+      error: null,
+    }
+  } catch (err) {
+    return { data: null, error: `Unexpected error: ${(err as Error).message}` }
+  }
+}
+
+/**
  * Get event history for a specific portfolio item (admin only).
  */
 export async function getPortfolioEventStats(
   portfolioId: string
 ): Promise<ServiceResponse<TrackingEvent[]>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
     const { data, error, count } = await supabase
       .from('events')
       .select('*', { count: 'exact' })
@@ -136,7 +208,7 @@ export async function getServiceEventStats(
   serviceId: string
 ): Promise<ServiceResponse<TrackingEvent[]>> {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
     const { data, error, count } = await supabase
       .from('events')
       .select('*', { count: 'exact' })

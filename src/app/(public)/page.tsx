@@ -1,6 +1,7 @@
 import { getFeaturedPortfolios } from '@/lib/services/portfolio.service'
 import { getAllServices } from '@/lib/services/services.service'
 import { getSettings } from '@/lib/services/settings.service'
+import type { Metadata } from 'next'
 
 import { HeroSection } from '@/components/public/hero-section'
 import { SocialProofBar } from '@/components/public/social-proof-bar'
@@ -10,6 +11,17 @@ import { ServicesPreview } from '@/components/public/services-preview'
 import { ProcessSection } from '@/components/public/process-section'
 import { TestimonialsSection } from '@/components/public/testimonials-section'
 import { FinalCTA } from '@/components/public/final-cta'
+
+export const metadata: Metadata = {
+  title: 'Cinematic Visual Stories | Photography & Videography in Lagos',
+  description:
+    'ShotThatWithTife — award-winning photography and videography in Lagos, Nigeria. Weddings, events, portraits and brand storytelling captured with a cinematic eye.',
+  keywords: [
+    'Lagos photographer', 'Lagos videographer', 'wedding photographer Lagos',
+    'event photography Nigeria', 'brand photography Lagos', 'ShotThatWithTife',
+    'cinematic videography Nigeria', 'portrait photographer Lagos',
+  ],
+}
 
 export const dynamic = 'force-dynamic'
 

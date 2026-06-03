@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Spinner } from '@phosphor-icons/react'
 import { AdminInput, AdminTextarea, AdminSelect, AdminToggle } from '@/components/admin/admin-form-field'
-import { AdminImageUpload } from '@/components/admin/admin-image-upload'
+import { AdminMediaUpload } from '@/components/admin/admin-media-upload'
 import { useToast } from '@/components/admin/admin-toast'
 import { createPortfolioAction, updatePortfolioAction } from '@/app/(admin)/admin/actions/portfolio.actions'
 import type { Portfolio } from '@/lib/services/types'
@@ -29,10 +29,27 @@ export function PortfolioForm({ portfolio, onSuccess, onCancel }: PortfolioFormP
   const [title, setTitle] = useState(portfolio?.title ?? '')
   const [description, setDescription] = useState(portfolio?.description ?? '')
   const [category, setCategory] = useState(portfolio?.category ?? '')
-  const [thumbnailUrl, setThumbnailUrl] = useState(portfolio?.thumbnail_url ?? '')
   const [isFeatured, setIsFeatured] = useState(portfolio?.is_featured ?? false)
   const [isPublished, setIsPublished] = useState(portfolio?.is_published ?? false)
   const [errors, setErrors] = useState<Record<string, string>>({})
+
+  // Media state — pulled from existing portfolio data
+  const [mediaUrls, setMediaUrls] = useState<string[]>(() => {
+    const raw = portfolio?.media_urls
+    if (Array.isArray(raw)) return raw as string[]
+    if (typeof raw === 'string') {
+      try { return JSON.parse(raw) } catch { return [] }
+    }
+    return []
+  })
+  const [mediaTypes, setMediaTypes] = useState<string[]>(() => {
+    return portfolio?.media_types ?? []
+  })
+
+  function handleMediaChange(urls: string[], types: string[]) {
+    setMediaUrls(urls)
+    setMediaTypes(types)
+  }
 
   function validate() {
     const errs: Record<string, string> = {}
@@ -45,14 +62,18 @@ export function PortfolioForm({ portfolio, onSuccess, onCancel }: PortfolioFormP
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!validate()) return
-
     setIsSubmitting(true)
+
+    // First item in media array is always the cover thumbnail
+    const thumbnailUrl = mediaUrls[0] ?? null
 
     const data = {
       title: title.trim(),
       description: description.trim() || null,
       category: category as 'photo' | 'video' | 'event' | 'marketing',
-      thumbnail_url: thumbnailUrl || null,
+      thumbnail_url: thumbnailUrl,
+      media_urls: mediaUrls,
+      media_types: mediaTypes,
       is_featured: isFeatured,
       is_published: isPublished,
     }
@@ -112,15 +133,19 @@ export function PortfolioForm({ portfolio, onSuccess, onCancel }: PortfolioFormP
 
         {/* Right Column */}
         <div className="flex flex-col gap-6">
-          <AdminImageUpload
-            label="Thumbnail"
-            value={thumbnailUrl}
-            onUpload={(url) => setThumbnailUrl(url)}
-            onRemove={() => setThumbnailUrl('')}
-            storagePath="portfolio/thumbnails"
-            helper="Main image shown in the portfolio grid."
-          />
+          {/* Media Gallery Upload */}
+          <div className="rounded-xl border border-white/10 bg-black/30 p-4">
+            <AdminMediaUpload
+              mediaUrls={mediaUrls}
+              mediaTypes={mediaTypes}
+              onChange={handleMediaChange}
+              storagePath="portfolio"
+              label="Media Gallery"
+              helper="Drag & drop images or videos. First item becomes the cover thumbnail."
+            />
+          </div>
 
+          {/* Visibility toggles */}
           <div className="rounded-xl border border-white/10 bg-black/30 p-4 flex flex-col gap-4">
             <span className="text-text-secondary text-xs uppercase tracking-widest font-medium">Visibility</span>
             <AdminToggle

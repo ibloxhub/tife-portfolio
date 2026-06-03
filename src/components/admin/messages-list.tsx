@@ -1,13 +1,17 @@
 'use client'
 
 import { useState } from 'react'
-import { MagnifyingGlass, Envelope } from '@phosphor-icons/react'
+import { MagnifyingGlass, Envelope, Trash, CheckSquare, Square, ArrowCounterClockwise } from '@phosphor-icons/react'
 import { AdminBadge } from '@/components/admin/admin-badge'
 import { AdminEmptyState } from '@/components/admin/admin-empty-state'
 import { AdminConfirmDialog } from '@/components/admin/admin-confirm-dialog'
 import { MessageDetail } from '@/components/admin/message-detail'
 import { useToast } from '@/components/admin/admin-toast'
-import { updateContactStatusAction, deleteContactAction } from '@/app/(admin)/admin/actions/contacts.actions'
+import {
+  updateContactStatusAction,
+  deleteContactAction,
+  bulkDeleteContactsAction,
+} from '@/app/(admin)/admin/actions/contacts.actions'
 import { cn } from '@/lib/utils'
 import type { Contact } from '@/lib/services/types'
 
@@ -25,6 +29,11 @@ export function MessagesList({ initialContacts }: MessagesListProps) {
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Contact | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
+
+  // ── Bulk select state ──────────────────────────────────────────────────────
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false)
+  const [showBulkConfirm, setShowBulkConfirm] = useState(false)
 
   // Filter
   const filtered = contacts.filter((c) => {
@@ -45,17 +54,34 @@ export function MessagesList({ initialContacts }: MessagesListProps) {
     archived: contacts.filter((c) => c.status === 'archived').length,
   }
 
-  // Status update
+  const allVisibleSelected = filtered.length > 0 && filtered.every((c) => selectedIds.has(c.id))
+  const someSelected = selectedIds.size > 0
+
+  // ── Toggle individual selection ────────────────────────────────────────────
+  function toggleSelect(id: string, e: React.MouseEvent) {
+    e.stopPropagation()
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }
+
+  // ── Toggle select all visible ──────────────────────────────────────────────
+  function toggleSelectAll() {
+    if (allVisibleSelected) {
+      setSelectedIds(new Set())
+    } else {
+      setSelectedIds(new Set(filtered.map((c) => c.id)))
+    }
+  }
+
+  // ── Status update ──────────────────────────────────────────────────────────
   async function handleStatusChange(id: string, status: 'new' | 'read' | 'replied' | 'archived') {
     const prev = contacts.find((c) => c.id === id)
     if (!prev) return
-
-    // Optimistic
     setContacts((list) => list.map((c) => (c.id === id ? { ...c, status } : c)))
-    if (selectedContact?.id === id) {
-      setSelectedContact({ ...selectedContact, status })
-    }
-
+    if (selectedContact?.id === id) setSelectedContact({ ...selectedContact, status })
     const result = await updateContactStatusAction(id, status)
     if (result.error) {
       setContacts((list) => list.map((c) => (c.id === id ? { ...c, status: prev.status } : c)))
@@ -65,7 +91,7 @@ export function MessagesList({ initialContacts }: MessagesListProps) {
     }
   }
 
-  // Delete
+  // ── Single delete ──────────────────────────────────────────────────────────
   async function handleDelete() {
     if (!deleteTarget) return
     setIsDeleting(true)
@@ -74,6 +100,7 @@ export function MessagesList({ initialContacts }: MessagesListProps) {
       showToast(typeof result.error === 'string' ? result.error : 'Failed to delete', 'error')
     } else {
       setContacts((list) => list.filter((c) => c.id !== deleteTarget.id))
+      setSelectedIds((prev) => { const n = new Set(prev); n.delete(deleteTarget.id); return n })
       if (selectedContact?.id === deleteTarget.id) setSelectedContact(null)
       showToast('Message deleted')
     }
@@ -81,7 +108,35 @@ export function MessagesList({ initialContacts }: MessagesListProps) {
     setDeleteTarget(null)
   }
 
-  // Time ago helper
+  // ── Bulk delete ────────────────────────────────────────────────────────────
+  async function handleBulkDelete() {
+    setIsBulkDeleting(true)
+    const ids = Array.from(selectedIds)
+    const result = await bulkDeleteContactsAction(ids)
+    if (result.error) {
+      showToast(typeof result.error === 'string' ? result.error : 'Failed to delete', 'error')
+    } else {
+      setContacts((list) => list.filter((c) => !selectedIds.has(c.id)))
+      if (selectedContact && selectedIds.has(selectedContact.id)) setSelectedContact(null)
+      showToast(`${ids.length} message${ids.length === 1 ? '' : 's'} deleted`)
+      setSelectedIds(new Set())
+    }
+    setIsBulkDeleting(false)
+    setShowBulkConfirm(false)
+  }
+
+  // ── Bulk mark as read ──────────────────────────────────────────────────────
+  async function handleBulkMarkRead() {
+    const ids = Array.from(selectedIds)
+    setContacts((list) =>
+      list.map((c) => (selectedIds.has(c.id) && c.status === 'new' ? { ...c, status: 'read' as const } : c))
+    )
+    await Promise.all(ids.map((id) => updateContactStatusAction(id, 'read')))
+    showToast(`${ids.length} message${ids.length === 1 ? '' : 's'} marked as read`)
+    setSelectedIds(new Set())
+  }
+
+  // Helpers
   function timeAgo(dateStr: string) {
     const now = new Date()
     const date = new Date(dateStr)
@@ -110,14 +165,54 @@ export function MessagesList({ initialContacts }: MessagesListProps) {
 
   return (
     <>
-      {/* Toolbar */}
+      {/* ── Bulk Action Toolbar (slides in when items are selected) ── */}
+      <div
+        className={cn(
+          'overflow-hidden transition-all duration-300 ease-out',
+          someSelected ? 'max-h-20 opacity-100 mb-3' : 'max-h-0 opacity-0'
+        )}
+      >
+        <div className="flex items-center justify-between gap-4 px-4 py-3 rounded-2xl bg-gold/10 border border-gold/25 backdrop-blur-sm">
+          <div className="flex items-center gap-2">
+            <CheckSquare weight="fill" className="h-4 w-4 text-gold" />
+            <span className="text-sm font-semibold text-white">
+              {selectedIds.size} selected
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleBulkMarkRead}
+              className="h-8 px-3 rounded-lg bg-white/5 border border-white/10 text-[11px] font-bold tracking-wider uppercase text-white hover:bg-white/10 transition-colors flex items-center gap-1.5"
+            >
+              <ArrowCounterClockwise weight="bold" className="h-3.5 w-3.5" />
+              Mark Read
+            </button>
+            <button
+              onClick={() => setShowBulkConfirm(true)}
+              className="h-8 px-3 rounded-lg bg-red-500/20 border border-red-500/30 text-[11px] font-bold tracking-wider uppercase text-red-400 hover:bg-red-500/30 hover:text-red-300 transition-colors flex items-center gap-1.5"
+            >
+              <Trash weight="bold" className="h-3.5 w-3.5" />
+              Delete ({selectedIds.size})
+            </button>
+            <button
+              onClick={() => setSelectedIds(new Set())}
+              className="h-8 w-8 rounded-lg bg-white/5 border border-white/10 text-white/40 hover:text-white hover:bg-white/10 transition-colors flex items-center justify-center text-lg leading-none"
+              title="Clear selection"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Toolbar ── */}
       <div className="flex flex-col gap-4">
         {/* Tabs */}
         <div className="flex items-center gap-1 rounded-xl bg-white/5 border border-white/10 p-0.5 w-fit">
           {tabs.map((tab) => (
             <button
               key={tab.key}
-              onClick={() => setActiveTab(tab.key)}
+              onClick={() => { setActiveTab(tab.key); setSelectedIds(new Set()) }}
               className={cn(
                 'h-9 px-3 rounded-lg text-xs font-medium transition-colors flex items-center gap-1.5',
                 activeTab === tab.key
@@ -153,7 +248,7 @@ export function MessagesList({ initialContacts }: MessagesListProps) {
         </div>
       </div>
 
-      {/* Messages List */}
+      {/* ── Messages List ── */}
       {filtered.length === 0 ? (
         <AdminEmptyState
           icon={Envelope}
@@ -163,66 +258,107 @@ export function MessagesList({ initialContacts }: MessagesListProps) {
       ) : (
         <div className="rounded-[2rem] bg-white/[0.02] p-1.5 ring-1 ring-white/5 backdrop-blur-sm">
           <div className="rounded-[calc(2rem-0.375rem)] bg-surface shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)] overflow-hidden">
+            {/* Select All row */}
+            <div className="flex items-center gap-3 px-4 md:px-5 py-2.5 border-b border-white/[0.05] bg-white/[0.01]">
+              <button
+                onClick={toggleSelectAll}
+                className="flex items-center gap-2 text-xs text-text-muted hover:text-white transition-colors"
+              >
+                {allVisibleSelected ? (
+                  <CheckSquare weight="fill" className="h-4 w-4 text-gold" />
+                ) : (
+                  <Square weight="regular" className="h-4 w-4" />
+                )}
+                <span className="font-medium">
+                  {allVisibleSelected ? 'Deselect all' : `Select all (${filtered.length})`}
+                </span>
+              </button>
+            </div>
+
             <div className="divide-y divide-white/[0.03]">
               {filtered.map((contact) => (
-                <button
+                <div
                   key={contact.id}
-                  onClick={() => {
-                    setSelectedContact(contact)
-                    // Auto-mark as read when opened
-                    if (contact.status === 'new') {
-                      handleStatusChange(contact.id, 'read')
-                    }
-                  }}
                   className={cn(
-                    'w-full flex items-center gap-4 p-4 md:p-5 text-left hover:bg-white/[0.02] transition-colors group',
-                    contact.status === 'new' && 'bg-gold/[0.02]'
+                    'flex items-center gap-3 md:gap-4 px-4 md:px-5 py-4 md:py-5 group transition-colors',
+                    contact.status === 'new' && !selectedIds.has(contact.id) && 'bg-gold/[0.02]',
+                    selectedIds.has(contact.id) && 'bg-gold/[0.05]',
                   )}
                 >
-                  {/* Avatar */}
-                  <div className={cn(
-                    'h-10 w-10 rounded-full flex items-center justify-center shrink-0 text-xs font-medium',
-                    contact.status === 'new'
-                      ? 'bg-gold/10 text-gold-light ring-1 ring-gold/20'
-                      : 'bg-white/5 text-text-secondary'
-                  )}>
-                    {getInitials(contact.name)}
-                  </div>
-
-                  {/* Content */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <span className={cn(
-                        'text-sm truncate',
-                        contact.status === 'new' ? 'font-semibold text-white' : 'font-medium text-white'
-                      )}>
-                        {contact.name}
-                      </span>
-                      <AdminBadge variant="status" status={contact.status}>
-                        {contact.status}
-                      </AdminBadge>
-                    </div>
-                    <p className="text-xs text-text-muted truncate">
-                      {contact.service_name ? `${contact.service_name} · ` : ''}
-                      {contact.message.slice(0, 80)}{contact.message.length > 80 ? '...' : ''}
-                    </p>
-                  </div>
-
-                  {/* Meta */}
-                  <div className="flex flex-col items-end gap-1 shrink-0">
-                    <span className="text-[11px] text-text-muted">{timeAgo(contact.created_at)}</span>
-                    {contact.status === 'new' && (
-                      <div className="h-2 w-2 rounded-full bg-gold" />
+                  {/* Checkbox */}
+                  <button
+                    onClick={(e) => toggleSelect(contact.id, e)}
+                    className="shrink-0 text-text-muted hover:text-gold transition-colors"
+                  >
+                    {selectedIds.has(contact.id) ? (
+                      <CheckSquare weight="fill" className="h-4 w-4 text-gold" />
+                    ) : (
+                      <Square weight="regular" className="h-4 w-4 opacity-40 group-hover:opacity-100" />
                     )}
-                  </div>
-                </button>
+                  </button>
+
+                  {/* Main clickable area */}
+                  <button
+                    onClick={() => {
+                      setSelectedContact(contact)
+                      if (contact.status === 'new') handleStatusChange(contact.id, 'read')
+                    }}
+                    className="flex-1 flex items-center gap-3 md:gap-4 text-left min-w-0"
+                  >
+                    {/* Avatar */}
+                    <div className={cn(
+                      'h-10 w-10 rounded-full flex items-center justify-center shrink-0 text-xs font-medium',
+                      contact.status === 'new'
+                        ? 'bg-gold/10 text-gold-light ring-1 ring-gold/20'
+                        : 'bg-white/5 text-text-secondary'
+                    )}>
+                      {getInitials(contact.name)}
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <span className={cn(
+                          'text-sm truncate',
+                          contact.status === 'new' ? 'font-semibold text-white' : 'font-medium text-white'
+                        )}>
+                          {contact.name}
+                        </span>
+                        <AdminBadge variant="status" status={contact.status}>
+                          {contact.status}
+                        </AdminBadge>
+                      </div>
+                      <p className="text-xs text-text-muted truncate">
+                        {contact.service_name ? `${contact.service_name} · ` : ''}
+                        {contact.message.slice(0, 80)}{contact.message.length > 80 ? '...' : ''}
+                      </p>
+                    </div>
+
+                    {/* Meta */}
+                    <div className="flex flex-col items-end gap-1 shrink-0">
+                      <span className="text-[11px] text-text-muted">{timeAgo(contact.created_at)}</span>
+                      {contact.status === 'new' && (
+                        <div className="h-2 w-2 rounded-full bg-gold" />
+                      )}
+                    </div>
+                  </button>
+
+                  {/* Quick-delete button (visible on hover) */}
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setDeleteTarget(contact) }}
+                    className="shrink-0 h-8 w-8 rounded-lg opacity-0 group-hover:opacity-100 bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 flex items-center justify-center transition-all"
+                    title="Delete message"
+                  >
+                    <Trash weight="bold" className="h-3.5 w-3.5" />
+                  </button>
+                </div>
               ))}
             </div>
           </div>
         </div>
       )}
 
-      {/* Message Detail Modal */}
+      {/* ── Message Detail Modal ── */}
       {selectedContact && (
         <MessageDetail
           contact={selectedContact}
@@ -235,7 +371,7 @@ export function MessagesList({ initialContacts }: MessagesListProps) {
         />
       )}
 
-      {/* Delete Confirmation */}
+      {/* ── Single Delete Confirmation ── */}
       <AdminConfirmDialog
         isOpen={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
@@ -243,6 +379,16 @@ export function MessagesList({ initialContacts }: MessagesListProps) {
         title="Delete Message"
         description={`Are you sure you want to delete the message from "${deleteTarget?.name}"? This cannot be undone.`}
         isLoading={isDeleting}
+      />
+
+      {/* ── Bulk Delete Confirmation ── */}
+      <AdminConfirmDialog
+        isOpen={showBulkConfirm}
+        onClose={() => setShowBulkConfirm(false)}
+        onConfirm={handleBulkDelete}
+        title={`Delete ${selectedIds.size} Message${selectedIds.size === 1 ? '' : 's'}`}
+        description={`Are you sure you want to permanently delete ${selectedIds.size} selected message${selectedIds.size === 1 ? '' : 's'}? This cannot be undone.`}
+        isLoading={isBulkDeleting}
       />
     </>
   )

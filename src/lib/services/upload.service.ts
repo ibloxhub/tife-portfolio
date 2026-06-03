@@ -94,3 +94,59 @@ export function getPublicUrl(path: string): string {
 
   return data.publicUrl
 }
+
+/**
+ * Extract an embed URL from a YouTube or Vimeo link.
+ * Returns null if the URL is not a recognised video platform link.
+ */
+export function extractVideoEmbedUrl(url: string): { embedUrl: string; platform: 'youtube' | 'vimeo' } | null {
+  try {
+    const parsed = new URL(url.trim())
+
+    // YouTube — youtube.com/watch?v=ID or youtu.be/ID
+    const ytMatch =
+      parsed.hostname.includes('youtube.com') && parsed.searchParams.get('v')
+        ? parsed.searchParams.get('v')
+        : parsed.hostname === 'youtu.be'
+        ? parsed.pathname.slice(1)
+        : null
+
+    if (ytMatch) {
+      return {
+        embedUrl: `https://www.youtube.com/embed/${ytMatch}?enablejsapi=1&rel=0&modestbranding=1`,
+        platform: 'youtube',
+      }
+    }
+
+    // Vimeo — vimeo.com/ID or vimeo.com/video/ID
+    const vimeoMatch = parsed.hostname.includes('vimeo.com')
+      ? parsed.pathname.match(/\/(?:video\/)?(\d+)/)?.[1]
+      : null
+
+    if (vimeoMatch) {
+      return {
+        embedUrl: `https://player.vimeo.com/video/${vimeoMatch}?api=1&title=0&byline=0&portrait=0`,
+        platform: 'vimeo',
+      }
+    }
+
+    return null
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Get a thumbnail URL for a video embed URL.
+ * For YouTube, returns the standard mqdefault thumbnail.
+ * For Vimeo/file uploads, returns null (caller should use a placeholder).
+ */
+export function getVideoThumbnailUrl(embedUrl: string): string | null {
+  // YouTube embed URL contains youtube.com/embed/VIDEO_ID
+  const ytIdMatch = embedUrl.match(/youtube\.com\/embed\/([^?]+)/)
+  if (ytIdMatch?.[1]) {
+    return `https://img.youtube.com/vi/${ytIdMatch[1]}/mqdefault.jpg`
+  }
+  return null
+}
+

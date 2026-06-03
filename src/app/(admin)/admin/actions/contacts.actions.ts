@@ -1,7 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { updateContactStatus, deleteContact } from '@/lib/services/contacts.service'
+import { updateContactStatus, deleteContact, bulkDeleteContacts } from '@/lib/services/contacts.service'
 import { requireAuth } from '@/lib/api/helpers'
 import type { ContactFilters } from '@/lib/services/types'
 
@@ -28,3 +28,16 @@ export async function deleteContactAction(id: string) {
   }
   return result
 }
+
+export async function bulkDeleteContactsAction(ids: string[]) {
+  const auth = await requireAuth()
+  if (!auth.authenticated) return { data: null, error: 'Unauthorized' }
+  if (!ids.length) return { data: null, error: 'No IDs provided' }
+
+  const result = await bulkDeleteContacts(ids)
+  if (!result.error) {
+    revalidatePath('/admin/messages')
+  }
+  return result
+}
+

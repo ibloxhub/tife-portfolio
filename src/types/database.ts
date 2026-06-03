@@ -17,6 +17,7 @@ export interface Database {
           description: string | null
           category: 'photo' | 'video' | 'event' | 'marketing'
           media_urls: Json
+          media_types: string[] | null
           thumbnail_url: string | null
           is_featured: boolean
           is_published: boolean
@@ -32,6 +33,7 @@ export interface Database {
           description?: string | null
           category: 'photo' | 'video' | 'event' | 'marketing'
           media_urls?: Json
+          media_types?: string[] | null
           thumbnail_url?: string | null
           is_featured?: boolean
           is_published?: boolean
@@ -47,6 +49,7 @@ export interface Database {
           description?: string | null
           category?: 'photo' | 'video' | 'event' | 'marketing'
           media_urls?: Json
+          media_types?: string[] | null
           thumbnail_url?: string | null
           is_featured?: boolean
           is_published?: boolean

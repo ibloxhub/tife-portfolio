@@ -2,6 +2,7 @@ import { getSettings } from '@/lib/services/settings.service'
 import { PublicNavbar } from '@/components/public/public-navbar'
 import { PublicFooter } from '@/components/public/public-footer'
 import { WhatsAppButton } from '@/components/public/whatsapp-button'
+import { LocalBusinessSchema, WebsiteSchema } from '@/components/public/seo-schema'
 
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
   const { data: settings } = await getSettings()
@@ -14,6 +15,14 @@ export default async function PublicLayout({ children }: { children: React.React
 
   return (
     <div className="relative min-h-screen bg-[#050505] text-white overflow-x-hidden">
+      {/* SEO Structured Data */}
+      <LocalBusinessSchema
+        name={siteName}
+        email={contactEmail || undefined}
+        phone={settings?.whatsapp_number || undefined}
+        instagramUrl={socialLinks?.instagram || undefined}
+      />
+      <WebsiteSchema />
       {/* ── Global Ambient Background ── */}
       <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
         {/* Noise texture */}

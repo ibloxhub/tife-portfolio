@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { Plus, MagnifyingGlass, Eye, PencilSimple, Trash, Star } from '@phosphor-icons/react'
 import { AdminBadge, PublishBadge } from '@/components/admin/admin-badge'
 import { AdminSelect } from '@/components/admin/admin-form-field'
@@ -9,6 +10,7 @@ import { AdminConfirmDialog } from '@/components/admin/admin-confirm-dialog'
 import { AdminModal } from '@/components/admin/admin-modal'
 import { PortfolioForm } from '@/components/admin/portfolio-form'
 import { useToast } from '@/components/admin/admin-toast'
+import { useRealtime } from '@/hooks/use-realtime'
 import { deletePortfolioAction, updatePortfolioAction } from '@/app/(admin)/admin/actions/portfolio.actions'
 import { cn } from '@/lib/utils'
 import type { Portfolio } from '@/lib/services/types'
@@ -27,10 +29,14 @@ interface PortfolioGridProps {
 
 export function PortfolioGrid({ initialPortfolios }: PortfolioGridProps) {
   const { showToast } = useToast()
+  const router = useRouter()
   const [portfolios, setPortfolios] = useState(initialPortfolios)
   const [search, setSearch] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('')
   const [publishFilter, setPublishFilter] = useState<'all' | 'published' | 'draft'>('all')
+
+  // Realtime sync — refresh when another session changes portfolio data
+  useRealtime('portfolio', () => router.refresh())
 
   // Modal states
   const [isFormOpen, setIsFormOpen] = useState(false)

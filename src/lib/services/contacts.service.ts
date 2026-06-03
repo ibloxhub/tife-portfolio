@@ -169,6 +169,26 @@ export async function deleteContact(id: string): Promise<ServiceResponse<boolean
 }
 
 /**
+ * Bulk delete multiple contacts by IDs (admin only).
+ * Uses admin client to bypass RLS for reliable deletion.
+ */
+export async function bulkDeleteContacts(ids: string[]): Promise<ServiceResponse<boolean>> {
+  if (!ids.length) return { data: true, error: null }
+  try {
+    const supabase = createAdminClient()
+    const { error } = await supabase
+      .from('contacts')
+      .delete()
+      .in('id', ids)
+
+    if (error) return { data: null, error: error.message }
+    return { data: true, error: null }
+  } catch (err) {
+    return { data: null, error: `Unexpected error: ${(err as Error).message}` }
+  }
+}
+
+/**
  * Get the count of unread (status = 'new') contacts.
  * Used for the sidebar badge in the admin dashboard.
  */

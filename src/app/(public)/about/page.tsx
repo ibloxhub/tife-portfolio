@@ -5,8 +5,14 @@ import { getSettings } from '@/lib/services/settings.service'
 import { ArrowRight, InstagramLogo, TiktokLogo, YoutubeLogo, CheckCircle } from '@phosphor-icons/react/dist/ssr'
 
 export const metadata: Metadata = {
-  title: 'About',
-  description: 'The creative behind the lens. Visualizing pure emotion.',
+  title: 'About Tife | Lagos Photographer & Videographer',
+  description:
+    'Meet Tife — the creative visionary behind ShotThatWithTife. Based in Lagos, Nigeria. Specialising in cinematic photography and videography for weddings, events and brand campaigns.',
+  openGraph: {
+    title: 'About Tife | ShotThatWithTife',
+    description: 'Meet the creative visionary behind Lagos’s most cinematic photography & videography studio.',
+  },
+  twitter: { card: 'summary_large_image' },
 }
 
 export default async function AboutPage() {

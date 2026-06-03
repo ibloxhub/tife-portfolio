@@ -3,8 +3,12 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getPortfolioBySlug, getAllPortfolios } from '@/lib/services/portfolio.service'
 import { ViewTracker } from '@/components/public/view-tracker'
-import { ArrowLeft, Calendar, Tag, Eye } from '@phosphor-icons/react/dist/ssr'
+import { MediaGallery } from '@/components/public/media-gallery'
+import { CreativeWorkSchema } from '@/components/public/seo-schema'
+import { ArrowLeft, Tag } from '@phosphor-icons/react/dist/ssr'
 import { Metadata } from 'next'
+
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://shotthatwithtife.com'
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -16,13 +20,28 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   if (!project) return { title: 'Not Found' }
 
+  const description = project.description
+    || `${project.category} work by ShotThatWithTife — cinematic photography and videography in Lagos, Nigeria.`
+
   return {
     title: project.title,
-    description: project.description || `View ${project.title} by ShotThatWithTife`,
+    description,
+    alternates: { canonical: `${BASE_URL}/portfolio/${project.slug}` },
     openGraph: {
-      title: project.title,
-      description: project.description || `View ${project.title} by ShotThatWithTife`,
-      images: project.thumbnail_url ? [{ url: project.thumbnail_url }] : [],
+      title: `${project.title} — ShotThatWithTife`,
+      description,
+      url: `${BASE_URL}/portfolio/${project.slug}`,
+      siteName: 'ShotThatWithTife',
+      images: project.thumbnail_url
+        ? [{ url: project.thumbnail_url, width: 1200, height: 630, alt: `${project.title} by ShotThatWithTife` }]
+        : [],
+      type: 'article',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${project.title} — ShotThatWithTife`,
+      description,
+      images: project.thumbnail_url ? [project.thumbnail_url] : [],
     },
   }
 }
@@ -46,16 +65,29 @@ export default async function PortfolioDetailPage({ params }: PageProps) {
     .slice(0, 3)
 
   const mediaUrls = project.media_urls as string[] ?? []
+  const mediaTypes = project.media_types ?? []
+  const mediaItems = mediaUrls.map((url, i) => ({
+    url,
+    type: (mediaTypes[i] === 'video' ? 'video' : 'image') as 'image' | 'video',
+  }))
 
   return (
     <div className="min-h-screen bg-[#050505]">
       <ViewTracker portfolioId={project.id} portfolioTitle={project.title} />
+      <CreativeWorkSchema
+        title={project.title}
+        description={project.description}
+        thumbnailUrl={project.thumbnail_url}
+        category={project.category}
+        slug={project.slug}
+        createdAt={project.created_at}
+      />
 
       {/* Hero Header */}
       <section className="relative h-[70dvh] w-full overflow-hidden">
         <Image
           src={project.thumbnail_url || '/placeholder-work.png'}
-          alt={project.title}
+          alt={`${project.title} — ${project.category} by ShotThatWithTife, Lagos`}
           fill
           priority
           className="object-cover opacity-60"
@@ -99,7 +131,7 @@ export default async function PortfolioDetailPage({ params }: PageProps) {
                   <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/20 block">Category</span>
                   <div className="flex items-center gap-2 text-white/60">
                     <Tag className="h-4 w-4 text-gold" />
-                    <span className="text-sm font-medium">{project.category}</span>
+                    <span className="text-sm font-medium capitalize">{project.category}</span>
                   </div>
                 </div>
               </div>
@@ -113,19 +145,14 @@ export default async function PortfolioDetailPage({ params }: PageProps) {
             </div>
 
             {/* Media Gallery */}
-            <div className="lg:col-span-8 flex flex-col gap-12">
-              {mediaUrls.length > 0 ? (
-                mediaUrls.map((url, i) => (
-                  <div key={i} className="relative aspect-[16/9] w-full rounded-[2.5rem] overflow-hidden bg-white/[0.02] border border-white/[0.06]">
-                    <Image
-                      src={url}
-                      alt={`${project.title} - Media ${i + 1}`}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                ))
-              ) : null}
+            <div className="lg:col-span-8">
+              {mediaItems.length > 0 ? (
+                <MediaGallery items={mediaItems} projectTitle={project.title} />
+              ) : (
+                <div className="relative aspect-[16/9] w-full rounded-[2.5rem] overflow-hidden bg-white/[0.02] border border-white/[0.06] flex items-center justify-center">
+                  <span className="text-white/20 text-sm">No media available</span>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -153,7 +180,7 @@ export default async function PortfolioDetailPage({ params }: PageProps) {
                 >
                   <Image
                     src={p.thumbnail_url || '/placeholder-work.png'}
-                    alt={p.title}
+                    alt={`${p.title} — ${p.category} photography by ShotThatWithTife`}
                     fill
                     className="object-cover transition-transform duration-1000 group-hover:scale-110 opacity-60 group-hover:opacity-100"
                   />
@@ -170,3 +197,4 @@ export default async function PortfolioDetailPage({ params }: PageProps) {
     </div>
   )
 }
+

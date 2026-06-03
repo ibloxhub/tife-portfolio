@@ -5,8 +5,14 @@ import { PublicContactForm } from '@/components/public/public-contact-form'
 import { EnvelopeSimple, WhatsappLogo, MapPin } from '@phosphor-icons/react/dist/ssr'
 
 export const metadata: Metadata = {
-  title: 'Contact',
-  description: 'Ready to bring your vision to life? Get in touch to start a conversation.',
+  title: 'Book a Session | ShotThatWithTife Lagos',
+  description:
+    'Book a photography or videography session with ShotThatWithTife. Based in Lagos, Nigeria. Available for weddings, events, brand shoots and portraits across Nigeria.',
+  openGraph: {
+    title: 'Book a Session | ShotThatWithTife',
+    description: 'Contact Lagos-based photographer Tife to book your session.',
+  },
+  twitter: { card: 'summary_large_image' },
 }
 
 export default async function ContactPage() {

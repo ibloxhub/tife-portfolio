@@ -1,19 +1,19 @@
-import { getAnalyticsOverview, getEvents } from '@/lib/services/events.service'
+import { getAnalyticsOverview, getEvents, getAnalyticsTrends } from '@/lib/services/events.service'
 import { getAllPortfolios } from '@/lib/services/portfolio.service'
-import { AdminStatCard } from '@/components/admin/admin-stat-card'
-import { AnalyticsCharts } from '@/components/admin/analytics-charts'
-import { Eye, CursorClick, EnvelopeOpen, ChartBar } from '@phosphor-icons/react/dist/ssr'
+import { AnalyticsLive } from '@/components/admin/analytics-live'
 
 export default async function AnalyticsPage() {
-  const [overviewResult, eventsResult, portfoliosResult] = await Promise.all([
+  const [overviewResult, eventsResult, portfoliosResult, trendsResult] = await Promise.all([
     getAnalyticsOverview(),
     getEvents(undefined, 500),
     getAllPortfolios(undefined, { page: 1, limit: 50, sortBy: 'view_count', sortOrder: 'desc' }),
+    getAnalyticsTrends(),
   ])
 
   const overview = overviewResult.data
   const events = eventsResult.data ?? []
   const portfolios = (portfoliosResult.data ?? []).slice(0, 10)
+  const trends = trendsResult.data ?? null
 
   // Build daily event counts for the chart (last 90 days)
   const now = new Date()
@@ -48,42 +48,12 @@ export default async function AnalyticsPage() {
   ].filter((d) => d.value > 0)
 
   return (
-    <div className="flex flex-col gap-8 max-w-6xl mx-auto">
-      <div className="flex flex-col gap-2">
-        <h1 className="text-3xl md:text-4xl font-medium text-white tracking-tight">Analytics</h1>
-        <p className="text-text-secondary text-sm">Track how your portfolio is performing.</p>
-      </div>
-
-      {/* Stat Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <AdminStatCard
-          title="Total Events"
-          value={(overview?.totalEvents ?? 0).toLocaleString()}
-          icon={ChartBar}
-        />
-        <AdminStatCard
-          title="Page Views"
-          value={(overview?.pageViews ?? 0).toLocaleString()}
-          icon={Eye}
-        />
-        <AdminStatCard
-          title="Service Clicks"
-          value={(overview?.serviceClicks ?? 0).toLocaleString()}
-          icon={CursorClick}
-        />
-        <AdminStatCard
-          title="Submissions"
-          value={(overview?.contactSubmissions ?? 0).toLocaleString()}
-          icon={EnvelopeOpen}
-        />
-      </div>
-
-      {/* Charts */}
-      <AnalyticsCharts
-        dailyData={dailyData}
-        portfolioChartData={portfolioChartData}
-        breakdownData={breakdownData}
-      />
-    </div>
+    <AnalyticsLive
+      initialStats={overview}
+      initialTrends={trends}
+      dailyData={dailyData}
+      portfolioChartData={portfolioChartData}
+      breakdownData={breakdownData}
+    />
   )
 }
