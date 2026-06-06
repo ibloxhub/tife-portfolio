@@ -8,7 +8,7 @@ import { AdminEmptyState } from '@/components/admin/admin-empty-state'
 import { AdminConfirmDialog } from '@/components/admin/admin-confirm-dialog'
 import { MessageDetail } from '@/components/admin/message-detail'
 import { useToast } from '@/components/admin/admin-toast'
-import { useRealtime } from '@/hooks/use-realtime'
+import { useRealtimeData } from '@/hooks/use-realtime-data'
 import {
   updateContactStatusAction,
   deleteContactAction,
@@ -26,20 +26,25 @@ interface MessagesListProps {
 export function MessagesList({ initialContacts }: MessagesListProps) {
   const { showToast } = useToast()
   const router = useRouter()
-  const [contacts, setContacts] = useState(initialContacts)
+  const [contacts, setContacts] = useRealtimeData('contacts', '/api/contact?limit=200', initialContacts, {
+    onInsert: (newContact) => {
+      setContacts((prev) => {
+        if (prev.some((c) => c.id === newContact.id)) return prev
+        return [newContact, ...prev]
+      })
+    },
+    onUpdate: (updatedContact) => {
+      setContacts((prev) => prev.map((c) => (c.id === updatedContact.id ? updatedContact : c)))
+    },
+    onDelete: (deletedId) => {
+      setContacts((prev) => prev.filter((c) => c.id !== deletedId))
+    },
+  })
   const [search, setSearch] = useState('')
   const [activeTab, setActiveTab] = useState<StatusTab>('all')
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Contact | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
-
-  // Realtime subscription — refresh contacts when new inquiries come in
-  useRealtime('contacts', () => router.refresh())
-
-  // Keep local state in sync when server component re-fetches and passes new props
-  useEffect(() => {
-    setContacts(initialContacts)
-  }, [initialContacts])
 
   // ── Bulk select state ──────────────────────────────────────────────────────
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())

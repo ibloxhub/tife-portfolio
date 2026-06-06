@@ -11,7 +11,6 @@ import { ServicesPreview } from '@/components/public/services-preview'
 import { ProcessSection } from '@/components/public/process-section'
 import { TestimonialsSection } from '@/components/public/testimonials-section'
 import { FinalCTA } from '@/components/public/final-cta'
-import { RealtimeRefresher } from '@/components/common/realtime-refresher'
 
 export const metadata: Metadata = {
   title: 'Cinematic Visual Stories | Photography & Videography in Lagos',
@@ -40,10 +39,6 @@ export default async function HomePage() {
 
   return (
     <div className="flex flex-col">
-      <RealtimeRefresher table="portfolio" />
-      <RealtimeRefresher table="services" />
-      <RealtimeRefresher table="settings" />
-
       {/* Section 1 — Hero */}
       <HeroSection 
         siteName={settings?.site_name ?? 'ShotThatWithTife'} 

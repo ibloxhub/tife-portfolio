@@ -10,7 +10,7 @@ import { AdminConfirmDialog } from '@/components/admin/admin-confirm-dialog'
 import { AdminModal } from '@/components/admin/admin-modal'
 import { PortfolioForm } from '@/components/admin/portfolio-form'
 import { useToast } from '@/components/admin/admin-toast'
-import { useRealtime } from '@/hooks/use-realtime'
+import { useRealtimeData } from '@/hooks/use-realtime-data'
 import { deletePortfolioAction, updatePortfolioAction } from '@/app/(admin)/admin/actions/portfolio.actions'
 import { cn } from '@/lib/utils'
 import type { Portfolio } from '@/lib/services/types'
@@ -30,18 +30,10 @@ interface PortfolioGridProps {
 export function PortfolioGrid({ initialPortfolios }: PortfolioGridProps) {
   const { showToast } = useToast()
   const router = useRouter()
-  const [portfolios, setPortfolios] = useState(initialPortfolios)
+  const [portfolios, setPortfolios] = useRealtimeData('portfolio', '/api/portfolio?limit=100', initialPortfolios)
   const [search, setSearch] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('')
   const [publishFilter, setPublishFilter] = useState<'all' | 'published' | 'draft'>('all')
-
-  // Realtime sync — refresh when another session changes portfolio data
-  useRealtime('portfolio', () => router.refresh())
-
-  // Keep local state in sync when server component re-fetches and passes new props
-  useEffect(() => {
-    setPortfolios(initialPortfolios)
-  }, [initialPortfolios])
 
   // Modal states
   const [isFormOpen, setIsFormOpen] = useState(false)

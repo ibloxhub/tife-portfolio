@@ -12,6 +12,7 @@ export async function GET(request: NextRequest) {
   const filters: PortfolioFilters = {
     ...(params.category && { category: params.category as PortfolioFilters['category'] }),
     ...(params.featured === 'true' && { isFeatured: true }),
+    ...(params.published === 'true' && { isPublished: true }),
     ...(params.search && { search: params.search }),
   }
 

@@ -1,18 +1,27 @@
 export default function PublicLoading() {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black">
-      <div className="flex flex-col items-center gap-6">
-        <div className="relative flex items-center justify-center">
-          {/* Outer rotating ring */}
-          <div className="absolute inset-0 rounded-full border border-white/10 animate-[spin_3s_linear_infinite]" />
-          {/* Inner pulse */}
-          <div className="h-16 w-16 rounded-full bg-gradient-to-br from-gold/20 to-gold/5 flex items-center justify-center border border-gold/30 shadow-[0_0_30px_rgba(200,169,126,0.15)] animate-pulse">
-            <span className="text-gold text-lg font-bold uppercase tracking-widest">T</span>
-          </div>
+    <div className="w-full min-h-screen bg-black flex flex-col pt-40 pb-32 px-6">
+      <div className="max-w-6xl mx-auto w-full flex flex-col gap-16 animate-pulse">
+        {/* Shimmer Header */}
+        <div className="flex flex-col items-center gap-6 text-center">
+          <div className="h-4 w-24 bg-white/5 rounded-full" />
+          <div className="h-12 md:h-16 w-64 md:w-96 bg-white/5 rounded-2xl" />
+          <div className="h-4 w-72 md:w-96 bg-white/5 rounded-full" />
         </div>
-        <span className="text-[10px] font-bold tracking-[0.4em] uppercase text-white/50 animate-pulse">
-          Loading...
-        </span>
+        
+        {/* Shimmer Gallery Filters */}
+        <div className="flex justify-center gap-3">
+          <div className="h-10 w-20 md:w-24 bg-white/5 rounded-full" />
+          <div className="h-10 w-28 md:w-32 bg-white/5 rounded-full" />
+          <div className="h-10 w-24 md:w-28 bg-white/5 rounded-full" />
+        </div>
+
+        {/* Shimmer Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="aspect-[4/5] bg-white/5 rounded-[2rem]" />
+          <div className="aspect-[3/4] bg-white/5 rounded-[2rem]" />
+          <div className="aspect-[4/5] bg-white/5 rounded-[2rem]" />
+        </div>
       </div>
     </div>
   )

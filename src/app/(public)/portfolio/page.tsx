@@ -1,7 +1,6 @@
 import { Metadata } from 'next'
 import { getAllPortfolios } from '@/lib/services/portfolio.service'
 import { PortfolioGallery } from '@/components/public/portfolio-gallery'
-import { RealtimeRefresher } from '@/components/common/realtime-refresher'
 
 export const metadata: Metadata = {
   title: 'Portfolio',
@@ -15,7 +14,6 @@ export default async function PortfolioPage() {
   
   return (
     <div className="min-h-screen pt-40 pb-32 px-6">
-      <RealtimeRefresher table="portfolio" />
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-20">

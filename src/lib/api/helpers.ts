@@ -54,6 +54,7 @@ export function parseSearchParams(url: string) {
     category: searchParams.get('category') ?? undefined,
     status: searchParams.get('status') ?? undefined,
     featured: searchParams.get('featured') ?? undefined,
+    published: searchParams.get('published') ?? undefined,
     startDate: searchParams.get('start') ?? undefined,
     endDate: searchParams.get('end') ?? undefined,
     serviceId: searchParams.get('serviceId') ?? undefined,

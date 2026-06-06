@@ -2,14 +2,16 @@
 // Settings Service — Global Site Configuration
 // ============================================================
 
+import { cache } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import type { ServiceResponse, Settings, SettingsUpdate } from './types'
 
 /**
  * Get the global site settings (single-row table).
  * Publicly accessible — used by both public layout and admin settings page.
+ * Cached to prevent multiple queries during the same request.
  */
-export async function getSettings(): Promise<ServiceResponse<Settings>> {
+export const getSettings = cache(async (): Promise<ServiceResponse<Settings>> => {
   try {
     const supabase = await createClient()
     const { data, error } = await supabase
@@ -23,7 +25,7 @@ export async function getSettings(): Promise<ServiceResponse<Settings>> {
   } catch (err) {
     return { data: null, error: `Unexpected error: ${(err as Error).message}` }
   }
-}
+})
 
 /**
  * Update global site settings (admin only).

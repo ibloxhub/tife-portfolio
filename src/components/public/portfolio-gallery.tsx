@@ -1,6 +1,11 @@
+
+
+
+
+
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
@@ -13,11 +18,35 @@ interface PortfolioGalleryProps {
 const categories = ['All', 'Photography', 'Videography', 'Events', 'Marketing']
 
 export function PortfolioGallery({ initialItems }: PortfolioGalleryProps) {
+  const [items, setItems] = useState<Portfolio[]>(initialItems)
   const [filter, setFilter] = useState('All')
 
+  useEffect(() => {
+    setItems(initialItems)
+  }, [initialItems])
+
+  useEffect(() => {
+    const pollPortfolios = async () => {
+      try {
+        const res = await fetch('/api/portfolio?published=true&limit=100')
+        if (res.ok) {
+          const result = await res.json()
+          if (result.success && Array.isArray(result.data)) {
+            setItems(result.data)
+          }
+        }
+      } catch (err) {
+        console.error('[PortfolioGallery] Polling failed:', err)
+      }
+    }
+
+    const interval = setInterval(pollPortfolios, 8000)
+    return () => clearInterval(interval)
+  }, [])
+
   const filteredItems = filter === 'All' 
-    ? initialItems 
-    : initialItems.filter(item => item.category?.toLowerCase() === filter.toLowerCase())
+    ? items 
+    : items.filter(item => item.category?.toLowerCase() === filter.toLowerCase())
 
   return (
     <div className="flex flex-col gap-16">
