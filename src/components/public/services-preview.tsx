@@ -23,7 +23,7 @@ export function ServicesPreview({ services }: ServicesPreviewProps) {
             Capabilities
           </span>
           <h2 className="text-4xl md:text-6xl font-bold uppercase tracking-tighter text-white">
-            What I Do
+            What We Do
           </h2>
         </div>
 

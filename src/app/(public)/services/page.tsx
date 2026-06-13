@@ -7,7 +7,7 @@ import { ArrowRight, CheckCircle } from '@phosphor-icons/react/dist/ssr'
 
 export const metadata: Metadata = {
   title: 'Services',
-  description: 'From cinematic videography to intimate photography, high-end visual solutions tailored to your unique story.',
+  description: 'IBlox Studio \u2014 from cinematic videography to intimate photography, high-end visual solutions tailored to your unique story.',
 }
 
 export const dynamic = 'force-dynamic'
@@ -25,10 +25,10 @@ export default async function ServicesPage() {
             Offerings
           </span>
           <h1 className="text-5xl md:text-8xl font-bold uppercase tracking-tighter text-white leading-[0.9]">
-            My Services
+            Our Services
           </h1>
           <p className="mt-8 text-white/30 text-sm max-w-xl mx-auto leading-relaxed">
-            From cinematic videography to intimate photography, I provide high-end visual solutions tailored to your unique story.
+            From cinematic videography to intimate photography, we provide high-end visual solutions tailored to your unique story.
           </p>
         </div>
 
@@ -80,7 +80,7 @@ export default async function ServicesPage() {
 
                   <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {/* Placeholder features if none provided in schema yet */}
-                    {['Professional Gear', 'Cinematic Color Grade', '4K Delivery', 'Creative Direction'].map(feature => (
+                    {['Cinema-Grade Equipment', 'Custom Colour Grading', '4K / 6K Delivery', 'Full Creative Direction'].map(feature => (
                       <li key={feature} className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-white/30">
                         <CheckCircle weight="fill" className="h-4 w-4 text-gold" />
                         {feature}

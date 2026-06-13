@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next'
 import { getAllPortfolios } from '@/lib/services/portfolio.service'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://shotthatwithtife.com'
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com'
 
   // Get dynamic portfolio items
   const { data: portfolioItems } = await getAllPortfolios()

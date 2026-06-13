@@ -40,12 +40,13 @@
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
 
-  /* Premium Cinematic Design Tokens */
-  --gold: #C8A97E;
-  --gold-light: #D4BA94;
-  --charcoal: #0A0A0A;
-  --charcoal-light: #1A1A1A;
-  --surface: #111111;
+  /* IBlox Studio — Cinematic Design Tokens */
+  --gold: #D4A843;
+  --gold-light: #E2BC6F;
+  --gold-orb: #EB8B07;
+  --charcoal: #16161A;
+  --charcoal-light: #1E1E24;
+  --surface: #1A1A20;
   --text-primary: #FAFAFA;
   --text-secondary: #888888;
   --text-muted: #555555;
@@ -98,13 +99,16 @@
   --color-text-primary: var(--text-primary);
   --color-text-secondary: var(--text-secondary);
   --color-text-muted: var(--text-muted);
+  --color-gold-orb: var(--gold-orb);
 
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-maerison, var(--font-geist-sans));
+  --font-accent: var(--font-reqaela, var(--font-geist-sans));
 }
 
 body {
-  background: var(--charcoal);
+  background: #16161A;
   color: var(--text-primary);
   font-family: var(--font-sans);
 }
@@ -118,7 +122,7 @@ body {
   background: var(--charcoal);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(200, 169, 126, 0.3); /* Muted Gold */
+  background: rgba(212, 168, 67, 0.3); /* Muted Amber */
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {

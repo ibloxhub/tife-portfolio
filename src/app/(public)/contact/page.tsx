@@ -5,12 +5,12 @@ import { PublicContactForm } from '@/components/public/public-contact-form'
 import { EnvelopeSimple, WhatsappLogo, MapPin } from '@phosphor-icons/react/dist/ssr'
 
 export const metadata: Metadata = {
-  title: 'Book a Session | ShotThatWithTife Lagos',
+  title: 'Book a Session | IBlox Studio',
   description:
-    'Book a photography or videography session with ShotThatWithTife. Based in Lagos, Nigeria. Available for weddings, events, brand shoots and portraits across Nigeria.',
+    'Book a cinematography or photography session with IBlox Studio. Available for weddings, brand campaigns, events, and editorial shoots worldwide.',
   openGraph: {
-    title: 'Book a Session | ShotThatWithTife',
-    description: 'Contact Lagos-based photographer Tife to book your session.',
+    title: 'Book a Session | IBlox Studio',
+    description: 'Get in touch with IBlox Studio to book your session.',
   },
   twitter: { card: 'summary_large_image' },
 }
@@ -42,7 +42,7 @@ export default async function ContactPage() {
                 <span className="text-gold">Something Great.</span>
               </h1>
               <p className="mt-6 text-white/40 text-lg leading-relaxed font-light">
-                Ready to bring your vision to life? Fill out the form or reach out through social channels. I usually respond within 24 hours.
+                Ready to bring your vision to life? Fill out the form or reach out through any channel below. We typically respond within 24 hours.
               </p>
             </div>
 
@@ -55,7 +55,7 @@ export default async function ContactPage() {
                 <div className="flex flex-col gap-1">
                   <span className="text-[10px] font-bold uppercase tracking-widest text-white/20">Email Me</span>
                   <a href={`mailto:${settings?.contact_email}`} className="text-lg text-white/60 hover:text-white transition-colors">
-                    {settings?.contact_email || 'hello@shotthatwithtife.com'}
+                    {settings?.contact_email || 'hello@ibloxstudio.com'}
                   </a>
                 </div>
               </div>
@@ -84,7 +84,7 @@ export default async function ContactPage() {
                 </div>
                 <div className="flex flex-col gap-1">
                   <span className="text-[10px] font-bold uppercase tracking-widest text-white/20">Location</span>
-                  <span className="text-lg text-white/60">Lagos, Nigeria (Available Globally)</span>
+                  <span className="text-lg text-white/60">Available Worldwide</span>
                 </div>
               </div>
             </div>

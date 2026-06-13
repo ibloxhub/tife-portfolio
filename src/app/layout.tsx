@@ -19,19 +19,19 @@ export async function generateMetadata(): Promise<Metadata> {
   const settings = result.data;
 
   const seoDefaults = settings?.seo_defaults as { metaTitle?: string, metaDescription?: string } | null;
-  const defaultTitle = seoDefaults?.metaTitle || settings?.site_name || "ShotThatWithTife";
-  const defaultDescription = seoDefaults?.metaDescription || settings?.tagline || "High-end cinematic videography and editorial photography portfolio.";
+  const defaultTitle = seoDefaults?.metaTitle || settings?.site_name || "IBlox Studio";
+  const defaultDescription = seoDefaults?.metaDescription || settings?.tagline || "Premium cinematic videography and photography for brands, weddings, and editorial campaigns worldwide.";
 
   return {
     title: {
-      template: `%s | ${settings?.site_name || 'ShotThatWithTife'}`,
+      template: `%s | ${settings?.site_name || 'IBlox Studio'}`,
       default: defaultTitle,
     },
     description: defaultDescription,
     openGraph: {
       title: defaultTitle,
       description: defaultDescription,
-      siteName: settings?.site_name || "ShotThatWithTife",
+      siteName: settings?.site_name || "IBlox Studio",
       locale: 'en_US',
       type: 'website',
     },

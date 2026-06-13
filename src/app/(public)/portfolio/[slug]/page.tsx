@@ -8,7 +8,7 @@ import { CreativeWorkSchema } from '@/components/public/seo-schema'
 import { ArrowLeft, Tag } from '@phosphor-icons/react/dist/ssr'
 import { Metadata } from 'next'
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://shotthatwithtife.com'
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com'
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -21,25 +21,25 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!project) return { title: 'Not Found' }
 
   const description = project.description
-    || `${project.category} work by ShotThatWithTife — cinematic photography and videography in Lagos, Nigeria.`
+    || `${project.category} work by IBlox Studio — premium cinematic photography and videography.`
 
   return {
     title: project.title,
     description,
     alternates: { canonical: `${BASE_URL}/portfolio/${project.slug}` },
     openGraph: {
-      title: `${project.title} — ShotThatWithTife`,
+      title: `${project.title} — IBlox Studio`,
       description,
       url: `${BASE_URL}/portfolio/${project.slug}`,
-      siteName: 'ShotThatWithTife',
+      siteName: 'IBlox Studio',
       images: project.thumbnail_url
-        ? [{ url: project.thumbnail_url, width: 1200, height: 630, alt: `${project.title} by ShotThatWithTife` }]
+        ? [{ url: project.thumbnail_url, width: 1200, height: 630, alt: `${project.title} by IBlox Studio` }]
         : [],
       type: 'article',
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${project.title} — ShotThatWithTife`,
+      title: `${project.title} — IBlox Studio`,
       description,
       images: project.thumbnail_url ? [project.thumbnail_url] : [],
     },
@@ -72,7 +72,7 @@ export default async function PortfolioDetailPage({ params }: PageProps) {
   }))
 
   return (
-    <div className="min-h-screen bg-[#050505]">
+    <div className="min-h-screen bg-[#16161A]">
       <ViewTracker portfolioId={project.id} portfolioTitle={project.title} />
       <CreativeWorkSchema
         title={project.title}
@@ -87,12 +87,12 @@ export default async function PortfolioDetailPage({ params }: PageProps) {
       <section className="relative h-[70dvh] w-full overflow-hidden">
         <Image
           src={project.thumbnail_url || '/placeholder-work.png'}
-          alt={`${project.title} — ${project.category} by ShotThatWithTife, Lagos`}
+          alt={`${project.title} — ${project.category} by IBlox Studio`}
           fill
           priority
           className="object-cover opacity-60"
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-[#050505]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-[#16161A]" />
         
         <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6 pt-20">
           <Link 
@@ -180,7 +180,7 @@ export default async function PortfolioDetailPage({ params }: PageProps) {
                 >
                   <Image
                     src={p.thumbnail_url || '/placeholder-work.png'}
-                    alt={`${p.title} — ${p.category} photography by ShotThatWithTife`}
+                    alt={`${p.title} — ${p.category} by IBlox Studio`}
                     fill
                     className="object-cover transition-transform duration-1000 group-hover:scale-110 opacity-60 group-hover:opacity-100"
                   />

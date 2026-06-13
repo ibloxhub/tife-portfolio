@@ -6,27 +6,37 @@ import type { Metadata } from 'next'
 import { HeroSection } from '@/components/public/hero-section'
 import { SocialProofBar } from '@/components/public/social-proof-bar'
 import { FeaturedWork } from '@/components/public/featured-work'
+import { WhyUsSection } from '@/components/public/why-us-section'
 import { IntroSection } from '@/components/public/intro-section'
 import { ServicesPreview } from '@/components/public/services-preview'
+import { FeaturedReelSection } from '@/components/public/featured-reel-section'
 import { ProcessSection } from '@/components/public/process-section'
+import { ClientBrandsSection } from '@/components/public/client-brands-section'
 import { TestimonialsSection } from '@/components/public/testimonials-section'
+import { FaqSection } from '@/components/public/faq-section'
 import { FinalCTA } from '@/components/public/final-cta'
 
 export const metadata: Metadata = {
-  title: 'Cinematic Visual Stories | Photography & Videography in Lagos',
+  title: 'Where Light Meets Legacy | Cinematic Videography & Photography',
   description:
-    'ShotThatWithTife — award-winning photography and videography in Lagos, Nigeria. Weddings, events, portraits and brand storytelling captured with a cinematic eye.',
+    'IBlox Studio — premium cinematic videography and photography for brands, weddings, and editorial campaigns. We craft visual stories that endure.',
   keywords: [
-    'Lagos photographer', 'Lagos videographer', 'wedding photographer Lagos',
-    'event photography Nigeria', 'brand photography Lagos', 'ShotThatWithTife',
-    'cinematic videography Nigeria', 'portrait photographer Lagos',
+    'cinematic videography studio',
+    'brand film production',
+    'commercial photography',
+    'wedding cinematography',
+    'editorial photography',
+    'video production studio',
+    'creative film studio',
+    'brand storytelling video',
+    'professional videographer',
+    'cinematic photographer',
   ],
 }
 
 export const dynamic = 'force-dynamic'
 
 export default async function HomePage() {
-  // Fetch data from admin CMS
   const [portfolioResult, servicesResult, settingsResult] = await Promise.all([
     getFeaturedPortfolios(6),
     getAllServices(),
@@ -36,39 +46,53 @@ export default async function HomePage() {
   const featured = portfolioResult.data ?? []
   const services = (servicesResult.data ?? []).filter((s) => s.is_active)
   const settings = settingsResult.data
+  const reelUrl = (settings as any)?.reel_url ?? undefined
 
   return (
     <div className="flex flex-col">
-      {/* Section 1 — Hero */}
-      <HeroSection 
-        siteName={settings?.site_name ?? 'ShotThatWithTife'} 
-        tagline={settings?.tagline ?? 'Cinematic Visual Stories'}
+      {/* 1 — Hero */}
+      <HeroSection
+        siteName={settings?.site_name ?? 'IBlox Studio'}
+        tagline={settings?.tagline ?? 'Where Light Becomes Legacy'}
+        reelUrl={reelUrl}
       />
 
-      {/* Section 2 — Social Proof Bar */}
-      <SocialProofBar />
-
-      {/* Section 3 — Selected Work */}
+      {/* 2 — Selected Work */}
       <FeaturedWork items={featured} />
 
-      {/* Section 4 — Who I Am */}
-      <IntroSection 
-        aboutText={settings?.about_text ?? undefined} 
+      {/* 3 — Stats Bar */}
+      <SocialProofBar />
+
+      {/* 4 — Why Us */}
+      <WhyUsSection />
+
+      {/* 5 — Services */}
+      <ServicesPreview services={services} />
+
+      {/* 6 — Featured Reel */}
+      <FeaturedReelSection reelUrl={reelUrl} />
+
+      {/* 7 — Studio Story */}
+      <IntroSection
+        aboutText={settings?.about_text ?? undefined}
         aboutImage={settings?.about_image_url ?? undefined}
       />
 
-      {/* Section 5 — Services */}
-      <ServicesPreview services={services} />
-
-      {/* Section 6 — The Process */}
+      {/* 8 — How We Work */}
       <ProcessSection />
 
-      {/* Section 7 — Testimonials */}
+      {/* 9 — Client Brands */}
+      <ClientBrandsSection />
+
+      {/* 10 — Testimonials */}
       <TestimonialsSection />
 
-      {/* Section 8 — Final CTA */}
-      <FinalCTA 
-        email={settings?.contact_email ?? undefined} 
+      {/* 11 — FAQ */}
+      <FaqSection />
+
+      {/* 12 — Final CTA */}
+      <FinalCTA
+        email={settings?.contact_email ?? undefined}
         whatsapp={settings?.whatsapp_number ?? undefined}
       />
     </div>

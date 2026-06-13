@@ -81,7 +81,7 @@ export function PublicNavbar({ siteName }: PublicNavbarProps) {
             href="/contact"
             className="hidden lg:flex items-center h-9 px-5 rounded-full bg-white text-black text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-gold hover:text-black hover:shadow-[0_0_20px_rgba(200,169,126,0.3)] transition-all duration-500"
           >
-            Book Now
+            Book a Session
           </Link>
 
           {/* Mobile Menu Toggle */}
@@ -132,7 +132,7 @@ export function PublicNavbar({ siteName }: PublicNavbarProps) {
           onClick={() => setMenuOpen(false)}
           className="mt-4 h-14 px-10 rounded-full bg-white text-black text-sm font-bold uppercase tracking-widest hover:bg-gold transition-all duration-500 flex items-center"
         >
-          Book Now
+          Book a Session
         </Link>
       </div>
     </>

@@ -3,11 +3,10 @@
  * These are server components (no 'use client' needed) that render <script> tags.
  */
 
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://shotthatwithtife.com'
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://yourdomain.com'
 
-// ── Local Business Schema ──────────────────────────────────────────────────────
+// ── Professional Service Schema ────────────────────────────────────────────────
 // Renders on all public pages via the public layout.
-// Tells Google this is a photography/videography business in Lagos.
 
 interface LocalBusinessSchemaProps {
   name?: string
@@ -18,51 +17,36 @@ interface LocalBusinessSchemaProps {
 }
 
 export function LocalBusinessSchema({
-  name = 'ShotThatWithTife',
-  description = 'Award-winning cinematic photography and videography in Lagos, Nigeria. Specialising in weddings, events, portraits and brand storytelling.',
+  name = 'IBlox Studio',
+  description = 'Premium cinematic videography and photography for brands, weddings, and editorial campaigns worldwide.',
   email,
   phone,
   instagramUrl,
 }: LocalBusinessSchemaProps) {
   const schema = {
     '@context': 'https://schema.org',
-    '@type': 'LocalBusiness',
+    '@type': 'ProfessionalService',
     '@id': `${BASE_URL}/#business`,
     name,
     description,
     url: BASE_URL,
     logo: `${BASE_URL}/logo.png`,
     image: `${BASE_URL}/og-image.jpg`,
-    address: {
-      '@type': 'PostalAddress',
-      addressLocality: 'Lagos',
-      addressCountry: 'NG',
-    },
-    geo: {
-      '@type': 'GeoCoordinates',
-      latitude: 6.5244,
-      longitude: 3.3792,
-    },
-    areaServed: [
-      { '@type': 'City', name: 'Lagos' },
-      { '@type': 'Country', name: 'Nigeria' },
-    ],
-    priceRange: '₦₦₦',
+    areaServed: { '@type': 'Place', name: 'Worldwide' },
+    priceRange: '$$$',
     hasOfferCatalog: {
       '@type': 'OfferCatalog',
-      name: 'Photography & Videography Services',
+      name: 'Cinematography & Photography Services',
       itemListElement: [
-        { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Wedding Photography' } },
-        { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Event Videography' } },
-        { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Portrait Photography' } },
-        { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Brand & Marketing Visuals' } },
+        { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Wedding Cinematography' } },
+        { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Brand Film Production' } },
+        { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Commercial Photography' } },
+        { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Editorial Photography' } },
       ],
     },
     ...(email && { email }),
     ...(phone && { telephone: phone }),
-    ...(instagramUrl && {
-      sameAs: [instagramUrl],
-    }),
+    ...(instagramUrl && { sameAs: [instagramUrl] }),
   }
 
   return (
@@ -97,11 +81,11 @@ export function CreativeWorkSchema({
     '@context': 'https://schema.org',
     '@type': 'CreativeWork',
     name: title,
-    description: description || `${category} work by ShotThatWithTife`,
+    description: description || `${category} work by IBlox Studio`,
     url: `${BASE_URL}/portfolio/${slug}`,
     creator: {
-      '@type': 'LocalBusiness',
-      name: 'ShotThatWithTife',
+      '@type': 'ProfessionalService',
+      name: 'IBlox Studio',
       url: BASE_URL,
     },
     ...(thumbnailUrl && { image: thumbnailUrl }),
@@ -124,7 +108,7 @@ export function WebsiteSchema() {
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'ShotThatWithTife',
+    name: 'IBlox Studio',
     url: BASE_URL,
     potentialAction: {
       '@type': 'SearchAction',
